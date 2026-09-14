@@ -1,0 +1,46 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        WORKSPACE: "@viettaste/api-gateway"
+    environment:
+      PORT: 3000
+      CLIENT_ORIGIN: http://localhost:5173
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PLACE_SERVICE_URL: http://place-service:3002
+      REVIEW_SERVICE_URL: http://review-service:3003
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - place-service
+      - review-service
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        WORKSPACE: "@viettaste/auth-service"
+    environment:
+      PORT: 3001
+
+  place-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        WORKSPACE: "@viettaste/place-service"
+    environment:
+      PORT: 3002
+
+  review-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        WORKSPACE: "@viettaste/review-service"
+    environment:
+      PORT: 3003
