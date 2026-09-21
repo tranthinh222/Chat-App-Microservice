@@ -11,6 +11,7 @@ button { cursor: pointer; }
 .auth-artwork::before, .auth-artwork::after { content: ''; position: absolute; border-radius: 50%; filter: blur(2px); }
 .auth-artwork::before { width: 500px; height: 500px; top: -180px; right: -160px; background: radial-gradient(circle, #5b7fff45, transparent 68%); }
 .auth-artwork::after { width: 400px; height: 400px; bottom: -100px; left: -160px; background: radial-gradient(circle, #a78bfa35, transparent 68%); }
+.particle-network { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; opacity: 1; }
 .brand, .sidebar-brand { font-size: 25px; font-weight: 700; letter-spacing: -.7px; position: relative; z-index: 1; }
 .brand span, .sidebar-brand span { color: #7c97ff; }
 .auth-artwork-copy { position: relative; z-index: 1; }
