@@ -31,14 +31,14 @@ enum Role {
 model User {
   id                Int        @id @default(autoincrement())
   phone             String     @unique @db.VarChar(255)
-  email             String     @unique @db.VarChar(255)
+  email             String     @unique @db.Char(255)
   username          String     @db.VarChar(255)
   password          String     @db.VarChar(255)
   birthday          DateTime   @db.Date
   gender            Gender
   status            UserStatus @default(ACTIVE)
   role              Role       @default(USER)
-  isBanned          Boolean    @default(false)  @map("is_banned")
+  isBanned          Boolean    @default(false) @map("is_banned")
   avatarUrl         String?    @map("avatar_url")
   latestPhoneUpdate DateTime?  @map("latest_phone_update")
   latestMailUpdate  DateTime?  @map("latest_mail_update")
