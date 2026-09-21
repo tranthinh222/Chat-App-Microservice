@@ -36,16 +36,16 @@ model User {
   password          String     @db.VarChar(255)
   birthday          DateTime   @db.Date
   gender            Gender
-  status            UserStatus
-  role              Role
-  isBanned          Boolean    @map("is_banned")
+  status            UserStatus @default(ACTIVE)
+  role              Role       @default(USER)
+  isBanned          Boolean    @default(false)  @map("is_banned")
   avatarUrl         String?    @map("avatar_url")
   latestPhoneUpdate DateTime?  @map("latest_phone_update")
   latestMailUpdate  DateTime?  @map("latest_mail_update")
   createdBy         String?    @map("created_by")
   updatedBy         String?    @map("updated_by")
-  createdAt         DateTime   @map("created_at")
-  updatedAt         DateTime   @map("updated_at")
+  createdAt         DateTime   @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
 
   @@map("users")
 }

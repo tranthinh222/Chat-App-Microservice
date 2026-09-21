@@ -8,7 +8,7 @@ async function startServer(): Promise<void> {
     await prisma.$connect()
     console.log('Connected to PostgreSQL')
     app.listen(env.port, () => {
-      console.log('User service running http://localhost:${env.port}')
+      console.log(`User service running http://localhost:${env.port}`)
     })
     console.log(`Server running on port ${env.port}`)
   } catch (error) {
