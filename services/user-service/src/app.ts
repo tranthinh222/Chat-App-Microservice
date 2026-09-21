@@ -1,6 +1,6 @@
 import express from 'express'
 import { prisma } from './config/prisma.js'
-
+import authRoute from './routes/auth.route.js'
 const app = express()
 app.use(express.json())
 
@@ -28,4 +28,6 @@ app.get('/health/ready', async (req, res) => {
     })
   }
 })
+
+app.use('/api/v1/auth', authRoute)
 export default app
