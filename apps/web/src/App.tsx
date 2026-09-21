@@ -1,4 +1,5 @@
-import { FormEvent, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import './App.css'
 
 type User = {
@@ -149,7 +150,7 @@ function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: User) => void
 }
 
 function Field({ label, icon, value, onChange, type = 'text', placeholder, action }: {
-  label: string; icon: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; action?: React.ReactNode
+  label: string; icon: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; action?: ReactNode
 }) {
   return <label className="field"><span>{label}</span><div><b>{icon}</b><input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required />{action}</div></label>
 }

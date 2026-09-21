@@ -11,7 +11,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n web,gateway,user,place,review -c blue,magenta,yellow,green,cyan \"npm run dev -w @viettaste/web\" \"npm run dev -w @viettaste/api-gateway\" \"npm run dev -w @viettaste/user-service\" \"npm run dev -w @viettaste/place-service\" \"npm run dev -w @viettaste/review-service\"",
+    "dev": "concurrently -n web,gateway,user,place,review -c blue,magenta,yellow,green,cyan \"npm run dev -w @chat-app/web\" \"npm run dev -w @viettaste/api-gateway\" \"npm run dev -w @viettaste/user-service\" \"npm run dev -w @viettaste/place-service\" \"npm run dev -w @viettaste/review-service\"",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
