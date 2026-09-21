@@ -1,23 +1,11 @@
-import type { Gender } from '../generated/prisma/client.js'
+import type { RegisterDto } from '../dtos/register.dto.js'
 import { userRepository } from '../repositories/prisma-user.repository.js'
 import { hashPassword } from '../utils/password.js'
 
-export type RegisterInput = {
-  phone: string
-  email: string
-  username: string
-  password: string
-  birthday: string | Date
-  gender: Gender
-}
-
 class AuthService {
-  async register(input: RegisterInput) {
-    const phone = input.phone.trim()
-    const email = input.email.trim().toLowerCase()
-    const username = input.username.trim().toLowerCase()
-    const birthday =
-      input.birthday instanceof Date ? input.birthday : new Date(input.birthday)
+  async register(input: RegisterDto) {
+    const { phone, email, username, password, gender } = input
+    const birthday = new Date(input.birthday)
 
     if (Number.isNaN(birthday.getTime())) {
       throw new Error('INVALID_BIRTHDAY')
@@ -41,15 +29,15 @@ class AuthService {
       throw new Error('USERNAME_ALREADY_EXISTS')
     }
 
-    const password = await hashPassword(input.password)
+    const passwordHash = await hashPassword(password)
 
     const user = await userRepository.create({
       phone,
       email,
       username,
-      password,
+      password: passwordHash,
       birthday,
-      gender: input.gender,
+      gender,
     })
 
     return {
