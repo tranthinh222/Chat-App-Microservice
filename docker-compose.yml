@@ -23,7 +23,7 @@ services:
       context: .
       dockerfile: Dockerfile.service
       args:
-        WORKSPACE: "@viettaste/auth-service"
+        WORKSPACE: "@viettaste/user-service"
     environment:
       PORT: 3001
 

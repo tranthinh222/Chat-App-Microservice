@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/web/package.json apps/web/package.json
 COPY services/api-gateway/package.json services/api-gateway/package.json
-COPY services/auth-service/package.json services/auth-service/package.json
+COPY services/user-service/package.json services/user-service/package.json
 COPY services/place-service/package.json services/place-service/package.json
 COPY services/review-service/package.json services/review-service/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
