@@ -11,9 +11,21 @@ export class PrismaUserRepository implements UserRepository {
     })
   }
 
+  async findByPhone(phone: string) {
+    return this.database.user.findUnique({
+      where: { phone },
+    })
+  }
+
   async findByEmail(email: string) {
     return this.database.user.findUnique({
       where: { email },
+    })
+  }
+
+  async findByUsername(username: string) {
+    return this.database.user.findFirst({
+      where: { username },
     })
   }
 
