@@ -51,10 +51,28 @@ button { cursor: pointer; }
 .field input::placeholder { color: #aaaab5; }
 .field input:hover, .field select:hover { border-color: #bdbdca; }
 .field input:focus, .field select:focus { border-color: #5b7fff; box-shadow: 0 0 0 3px #5b7fff1a; }
-.field div > button { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); border: 0; background: none; }
+.field > div > .password-toggle { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); border: 0; background: none; }
 .field .password-toggle { width: 34px; height: 34px; color: #858594; padding: 7px; display: grid; place-items: center; border-radius: 8px; }
 .field .password-toggle:hover { color: #526fe8; }
 .visibility-icon { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.gender-field { min-width: 0; padding: 0; border: 0; }
+.gender-field legend { display: block; width: 100%; padding: 0; font-size: 13px; font-weight: 600; color: #323244; margin-bottom: 7px; }
+.gender-picker { position: relative; }
+.field .gender-trigger { position: static; width: 100%; height: 49px; padding: 0 13px 0 15px; border: 1px solid #dcdce4; border-radius: 11px; background: #fff; color: #777786; display: flex; align-items: center; gap: 10px; text-align: left; transition: border-color .15s, box-shadow .15s, background .15s; }
+.field .gender-trigger:hover { border-color: #bdbdca; }
+.field .gender-trigger.open { border-color: #5b7fff; box-shadow: 0 0 0 3px #5b7fff1a; }
+.gender-trigger > svg:not(.select-chevron) { width: 18px; height: 18px; color: #526fe8; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.gender-placeholder-icon { width: 18px; color: #9292a0; text-align: center; }
+.select-chevron { width: 18px; height: 18px; margin-left: auto; fill: none; stroke: #9292a0; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .18s; }
+.gender-trigger.open .select-chevron { transform: rotate(180deg); }
+.gender-menu { position: absolute; z-index: 20; top: calc(100% + 8px); left: 0; right: 0; padding: 6px; border: 1px solid #e0e0e7; border-radius: 14px; background: #fff; box-shadow: 0 16px 40px #25254a24; animation: dropdown-in .16s ease-out; }
+.field .gender-menu > button { position: static; width: 100%; min-height: 42px; padding: 7px 10px; border: 0; border-radius: 10px; background: transparent; color: #444454; display: flex; align-items: center; gap: 10px; text-align: left; transform: none; transition: background .15s, color .15s; }
+.field .gender-menu > button:hover { color: #334fc5; background: #f1f4ff; }
+.field .gender-menu > button.selected { color: #334fc5; background: #edf1ff; font-weight: 600; }
+.gender-option-icon { width: 28px; height: 28px; flex: 0 0 28px; border-radius: 9px; background: #f0f2ff; color: #526fe8; display: grid; place-items: center; }
+.gender-option-icon svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.gender-check { margin-left: auto; color: #526fe8; }
+@keyframes dropdown-in { from { opacity: 0; transform: translateY(-5px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .forgot { display: block; margin: -5px 0 19px auto; font-size: 13px; }
 .primary-button { width: 100%; min-height: 49px; border: 0; border-radius: 11px; padding: 13px 18px; background: #19192d; color: white; font-size: 14px; font-weight: 600; transition: transform .15s, background .15s, box-shadow .15s; }

@@ -12,7 +12,7 @@ type User = {
 }
 
 type AuthMode = 'login' | 'register'
-type InputIconName = 'user' | 'phone' | 'gender' | 'calendar' | 'mail' | 'lock'
+type InputIconName = 'user' | 'phone' | 'calendar' | 'mail' | 'lock'
 
 const USERS_KEY = 'chat-app-users'
 const SESSION_KEY = 'chat-app-session'
@@ -61,6 +61,7 @@ function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: User) => void
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [genderOpen, setGenderOpen] = useState(false)
   const [form, setForm] = useState({
     username: '', email: '', password: '', confirm: '', phone: '', birthday: '', gender: '',
   })
@@ -115,6 +116,7 @@ function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: User) => void
     setError('')
     setShowPassword(false)
     setShowConfirmPassword(false)
+    setGenderOpen(false)
   }
 
   return (
@@ -144,7 +146,43 @@ function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: User) => void
                 <Field label="Phone number" icon="phone" type="tel" value={form.phone} onChange={(value) => update('phone', value)} placeholder="0912 345 678" autoComplete="tel" />
               </div>
               <div className="form-grid">
-                <label className="field"><span>Gender</span><div><InputIcon name="gender" /><select value={form.gender} onChange={(e) => update('gender', e.target.value)} required><option value="">Select gender</option><option value="MALE">Male</option><option value="FEMALE">Female</option><option value="OTHER">Other</option></select></div></label>
+                <fieldset className="field gender-field">
+                  <legend>Gender</legend>
+                  <div className="gender-picker">
+                    <button
+                      type="button"
+                      className={genderOpen ? 'gender-trigger open' : 'gender-trigger'}
+                      onClick={() => setGenderOpen((open) => !open)}
+                      aria-expanded={genderOpen}
+                    >
+                      {form.gender ? <GenderIcon gender={form.gender as 'MALE' | 'FEMALE' | 'OTHER'} /> : <span className="gender-placeholder-icon">◇</span>}
+                      <span>{form.gender ? form.gender.charAt(0) + form.gender.slice(1).toLowerCase() : 'Select gender'}</span>
+                      <svg className="select-chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 7.5 4.5 4.5 4.5-4.5" /></svg>
+                    </button>
+
+                    {genderOpen && (
+                      <div className="gender-menu" role="listbox">
+                        {(['MALE', 'FEMALE', 'OTHER'] as const).map((gender) => (
+                          <button
+                            key={gender}
+                            type="button"
+                            className={form.gender === gender ? 'selected' : ''}
+                            onClick={() => {
+                              update('gender', gender)
+                              setGenderOpen(false)
+                            }}
+                            role="option"
+                            aria-selected={form.gender === gender}
+                          >
+                            <span className="gender-option-icon"><GenderIcon gender={gender} /></span>
+                            <span>{gender === 'MALE' ? 'Male' : gender === 'FEMALE' ? 'Female' : 'Other'}</span>
+                            {form.gender === gender && <span className="gender-check">✓</span>}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </fieldset>
                 <Field label="Birthday" icon="calendar" type="date" value={form.birthday} onChange={(value) => update('birthday', value)} max={new Date().toISOString().split('T')[0]} />
               </div>
             </>
@@ -168,13 +206,22 @@ function InputIcon({ name }: { name: InputIconName }) {
   const paths: Record<InputIconName, ReactNode> = {
     user: <><circle cx="12" cy="8" r="3.25" /><path d="M5.5 19c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5" /></>,
     phone: <path d="M7.4 3.8 9.8 7 8.2 9c1.2 2.5 3.2 4.5 5.8 5.8l2-1.6 3.2 2.4-.7 3c-.2.8-.9 1.4-1.8 1.4C9.7 19.5 4.5 14.3 4 7.3c-.1-.9.5-1.6 1.4-1.8l2-.7Z" />,
-    gender: <><circle cx="9" cy="10" r="4" /><path d="m12 7 5-5m-3 0h3v3M9 14v7m-3-3h6" /></>,
     calendar: <><rect x="3.5" y="5" width="17" height="15" rx="2.5" /><path d="M8 3v4m8-4v4M3.5 9.5h17" /></>,
     mail: <><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4.5 7 7.5 6 7.5-6" /></>,
     lock: <><rect x="4.5" y="10" width="15" height="11" rx="2.5" /><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4.5v2" /></>,
   }
 
   return <span className="field-icon" aria-hidden="true"><svg viewBox="0 0 24 24">{paths[name]}</svg></span>
+}
+
+function GenderIcon({ gender }: { gender: 'MALE' | 'FEMALE' | 'OTHER' }) {
+  if (gender === 'MALE') {
+    return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="15" r="5" /><path d="m13 11 7-7m-5 0h5v5" /></svg>
+  }
+  if (gender === 'FEMALE') {
+    return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5" /><path d="M12 13v8m-4-3h8" /></svg>
+  }
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="5" /><path d="M10 15v6m-3-3h6m1-12 5-3m-2 0h2v2" /></svg>
 }
 
 function VisibilityIcon({ visible }: { visible: boolean }) {
