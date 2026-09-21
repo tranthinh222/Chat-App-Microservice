@@ -46,8 +46,9 @@ function AuthArtwork() {
         <div>Thanks! I'll send the file now <span className="mini-avatar green">T</span></div>
         <div><span className="mini-avatar purple">H</span>The PR is merged. Great work! 🎉</div>
       </div>
-      <div>
-        <h1>Connect &amp; <em>collaborate</em><br />from anywhere</h1>
+      <div className="auth-artwork-copy">
+        <span className="artwork-eyebrow">YOUR TEAM, IN SYNC</span>
+        <h1>Connect, collaborate,<br />and move work forward.</h1>
         <p>Message, share files, and work better together with Nexus Chat.</p>
       </div>
     </aside>
@@ -58,6 +59,7 @@ function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: User) => void
   const [mode, setMode] = useState<AuthMode>('login')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [form, setForm] = useState({
     username: '', email: '', password: '', confirm: '', phone: '', birthday: '', gender: '',
   })
@@ -110,14 +112,23 @@ function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: User) => void
   const switchMode = () => {
     setMode((current) => current === 'login' ? 'register' : 'login')
     setError('')
+    setShowPassword(false)
+    setShowConfirmPassword(false)
   }
 
   return (
     <main className="auth-layout">
       <AuthArtwork />
       <section className="auth-form-area">
-        <form className="auth-card" onSubmit={submit}>
-          <h2>{mode === 'login' ? 'Welcome back 👋' : 'Create an account ✨'}</h2>
+        <form className={`auth-card auth-card--${mode}`} onSubmit={submit}>
+          <div className="auth-mobile-brand"><span>✦</span> Nexus</div>
+          <span className="auth-kicker">{mode === 'login' ? 'WELCOME BACK' : 'GET STARTED'}</span>
+          <h2>{mode === 'login' ? 'Sign in to Nexus' : 'Create your account'}</h2>
+          <p className="auth-description">
+            {mode === 'login'
+              ? 'Enter your details to continue to your conversations.'
+              : 'Set up your profile and start chatting with your team.'}
+          </p>
           <p className="auth-switch">
             {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
             <button type="button" onClick={switchMode}>{mode === 'login' ? 'Sign up now' : 'Sign in'}</button>
@@ -127,32 +138,33 @@ function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: User) => void
 
           {mode === 'register' && (
             <>
-              <Field label="Username" icon="👤" value={form.username} onChange={(value) => update('username', value)} placeholder="thinhtran" />
+              <Field label="Username" icon="@" value={form.username} onChange={(value) => update('username', value)} placeholder="your_username" autoComplete="username" />
               <div className="form-grid">
-                <label className="field"><span>Gender</span><div><b>👫</b><select value={form.gender} onChange={(e) => update('gender', e.target.value)} required><option value="">Select gender</option><option value="MALE">Male</option><option value="FEMALE">Female</option><option value="OTHER">Other</option></select></div></label>
-                <Field label="Birthday" icon="🎂" type="date" value={form.birthday} onChange={(value) => update('birthday', value)} />
+                <label className="field"><span>Gender</span><div><b>◇</b><select value={form.gender} onChange={(e) => update('gender', e.target.value)} required><option value="">Select gender</option><option value="MALE">Male</option><option value="FEMALE">Female</option><option value="OTHER">Other</option></select></div></label>
+                <Field label="Birthday" icon="○" type="date" value={form.birthday} onChange={(value) => update('birthday', value)} max={new Date().toISOString().split('T')[0]} />
               </div>
-              <Field label="Phone number" icon="📱" type="tel" value={form.phone} onChange={(value) => update('phone', value)} placeholder="0912 345 678" />
+              <Field label="Phone number" icon="＋" type="tel" value={form.phone} onChange={(value) => update('phone', value)} placeholder="0912 345 678" autoComplete="tel" />
             </>
           )}
 
-          <Field label="Email" icon="✉️" type="email" value={form.email} onChange={(value) => update('email', value)} placeholder="ten@email.com" />
-          <Field label="Password" icon="🔒" type={showPassword ? 'text' : 'password'} value={form.password} onChange={(value) => update('password', value)} placeholder="At least 8 characters" action={<button type="button" onClick={() => setShowPassword((value) => !value)}>{showPassword ? '🙈' : '👁️'}</button>} />
+          <Field label="Email address" icon="✉" type="email" value={form.email} onChange={(value) => update('email', value)} placeholder="you@example.com" autoComplete="email" />
+          <Field label="Password" icon="⌑" type={showPassword ? 'text' : 'password'} value={form.password} onChange={(value) => update('password', value)} placeholder="At least 8 characters" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} action={<button className="password-toggle" type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? 'Hide' : 'Show'}</button>} />
 
-          {mode === 'register' && <Field label="Confirm password" icon="🔒" type="password" value={form.confirm} onChange={(value) => update('confirm', value)} placeholder="Enter your password again" />}
+          {mode === 'register' && <Field label="Confirm password" icon="⌑" type={showConfirmPassword ? 'text' : 'password'} value={form.confirm} onChange={(value) => update('confirm', value)} placeholder="Enter your password again" autoComplete="new-password" action={<button className="password-toggle" type="button" onClick={() => setShowConfirmPassword((value) => !value)} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}>{showConfirmPassword ? 'Hide' : 'Show'}</button>} />}
           {mode === 'login' && <button className="forgot" type="button">Forgot password?</button>}
-          <button className="primary-button" type="submit">{mode === 'login' ? 'Sign in →' : 'Create account →'}</button>
-          <p className="demo-note">Frontend demo — data is stored only in this browser.</p>
+          <button className="primary-button" type="submit">{mode === 'login' ? 'Sign in' : 'Create account'} <span>→</span></button>
+          {mode === 'register' && <p className="terms-note">By creating an account, you agree to our Terms of Service and Privacy Policy.</p>}
+          <p className="demo-note"><span /> Demo mode · Your data stays in this browser</p>
         </form>
       </section>
     </main>
   )
 }
 
-function Field({ label, icon, value, onChange, type = 'text', placeholder, action }: {
-  label: string; icon: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; action?: ReactNode
+function Field({ label, icon, value, onChange, type = 'text', placeholder, action, autoComplete, max }: {
+  label: string; icon: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; action?: ReactNode; autoComplete?: string; max?: string
 }) {
-  return <label className="field"><span>{label}</span><div><b>{icon}</b><input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required />{action}</div></label>
+  return <label className="field"><span>{label}</span><div><b>{icon}</b><input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} autoComplete={autoComplete} max={max} required />{action}</div></label>
 }
 
 function ChatScreen({ user, onLogout }: { user: User; onLogout: () => void }) {
