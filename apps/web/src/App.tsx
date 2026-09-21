@@ -138,12 +138,14 @@ function AuthScreen({ onAuthenticated }: { onAuthenticated: (user: User) => void
 
           {mode === 'register' && (
             <>
-              <Field label="Username" icon="@" value={form.username} onChange={(value) => update('username', value)} placeholder="your_username" autoComplete="username" />
+              <div className="form-grid">
+                <Field label="Username" icon="@" value={form.username} onChange={(value) => update('username', value)} placeholder="your_username" autoComplete="username" />
+                <Field label="Phone number" icon="＋" type="tel" value={form.phone} onChange={(value) => update('phone', value)} placeholder="0912 345 678" autoComplete="tel" />
+              </div>
               <div className="form-grid">
                 <label className="field"><span>Gender</span><div><b>◇</b><select value={form.gender} onChange={(e) => update('gender', e.target.value)} required><option value="">Select gender</option><option value="MALE">Male</option><option value="FEMALE">Female</option><option value="OTHER">Other</option></select></div></label>
                 <Field label="Birthday" icon="○" type="date" value={form.birthday} onChange={(value) => update('birthday', value)} max={new Date().toISOString().split('T')[0]} />
               </div>
-              <Field label="Phone number" icon="＋" type="tel" value={form.phone} onChange={(value) => update('phone', value)} placeholder="0912 345 678" autoComplete="tel" />
             </>
           )}
 
