@@ -1,49 +1,24 @@
 import type { Request, Response } from 'express'
-import { Gender } from '../generated/prisma/client.js'
+import { registerUserValidator } from '../dtos/register.dto.js'
 import { authService } from '../services/auth.service.js'
-
-function isGender(value: unknown): value is Gender {
-  return Object.values(Gender).some((gender) => gender === value)
-}
 
 class AuthController {
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const { phone, email, username, password, birthday, gender } = req.body
+      const result = registerUserValidator.safeParse(req.body)
 
-      if (
-        typeof phone !== 'string' ||
-        typeof email !== 'string' ||
-        typeof username !== 'string' ||
-        typeof password !== 'string' ||
-        typeof birthday !== 'string' ||
-        !isGender(gender) ||
-        !phone.trim() ||
-        !email.trim() ||
-        !username.trim()
-      ) {
+      if (!result.success) {
         res.status(400).json({
-          message:
-            'phone, email, username, password, birthday and a valid gender are required',
+          message: 'Validation failed',
+          errors: result.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
         })
         return
       }
 
-      if (password.length < 8) {
-        res.status(400).json({
-          message: 'Password must contain at least 8 characters',
-        })
-        return
-      }
-
-      const user = await authService.register({
-        phone,
-        email,
-        username,
-        password,
-        birthday,
-        gender,
-      })
+      const user = await authService.register(result.data)
 
       res.status(201).json({
         message: 'User registered successfully',
