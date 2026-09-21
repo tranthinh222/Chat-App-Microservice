@@ -11,3 +11,41 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id                Int        @id @default(autoincrement())
+  phone             String     @unique @db.VarChar(255)
+  email             String     @unique @db.VarChar(255)
+  username          String     @db.VarChar(255)
+  password          String     @db.VarChar(255)
+  birthday          DateTime   @db.Date
+  gender            Gender
+  status            UserStatus
+  role              Role
+  isBanned          Boolean    @map("is_banned")
+  avatarUrl         String?    @map("avatar_url")
+  latestPhoneUpdate DateTime?  @map("latest_phone_update")
+  latestMailUpdate  DateTime?  @map("latest_mail_update")
+  createdBy         String?    @map("created_by")
+  updatedBy         String?    @map("updated_by")
+  createdAt         DateTime   @map("created_at")
+  updatedAt         DateTime   @map("updated_at")
+
+  @@map("users")
+}
