@@ -1,6 +1,8 @@
 import express from 'express'
 import { prisma } from './config/prisma.js'
+import { errorMiddleware } from './middlewares/error.middleware.js'
 import authRoute from './routes/auth.route.js'
+
 const app = express()
 app.use(express.json())
 
@@ -30,4 +32,6 @@ app.get('/health/ready', async (req, res) => {
 })
 
 app.use('/api/v1/auth', authRoute)
+app.use(errorMiddleware)
+
 export default app
