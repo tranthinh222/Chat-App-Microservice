@@ -27,7 +27,11 @@ class AuthService {
     const userWithUsername = await userRepository.findByUsername(username)
 
     if (userWithUsername) {
-      throw new AppError(409, 'USERNAME_ALREADY_EXISTS', 'Username already exists')
+      throw new AppError(
+        409,
+        'USERNAME_ALREADY_EXISTS',
+        'Username already exists',
+      )
     }
 
     const passwordHash = await hashPassword(password)
