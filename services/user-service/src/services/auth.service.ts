@@ -87,7 +87,11 @@ class AuthService {
       throw new AppError(403, 'ACCOUNT_NOT_ACTIVE', 'Account is not active')
     }
 
-    const accessToken = tokenService.createAccessToken(String(user.id))
+    const accessToken = tokenService.createAccessToken({
+      userId: user.id,
+      role: user.role,
+      username: user.username,
+    })
 
     return {
       accessToken,
