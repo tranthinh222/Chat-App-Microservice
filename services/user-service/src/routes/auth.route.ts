@@ -6,6 +6,7 @@ import { asyncHandler } from '../utils/async-handler.js'
 import { loginUserValidator } from '../dtos/login-user.dto.js'
 
 const authRouter = Router()
+const userRouter = Router()
 
 authRouter.post(
   '/register',
@@ -18,4 +19,5 @@ authRouter.post(
   validateBody(loginUserValidator),
   asyncHandler(authController.login.bind(authController)),
 )
+
 export default authRouter
