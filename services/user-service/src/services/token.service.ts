@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { env } from '../config/env.js'
 
 type AccessTokenPayload = {
   type: 'access'
@@ -6,19 +7,13 @@ type AccessTokenPayload = {
 
 class TokenService {
   createAccessToken(userId: string): string {
-    const secret = process.env.JWT_ACCESS_SECRET
-
-    if (!secret) {
-      throw new Error('JWT_ACCESS_SECRET is missing')
-    }
-
     const payload: AccessTokenPayload = {
       type: 'access',
     }
 
-    return jwt.sign(payload, secret, {
+    return jwt.sign(payload, env.jwtAccessSecret, {
       subject: userId,
-      expiresIn: '15m',
+      expiresIn: env.jwtAccessExpiresIn,
     })
   }
 }
