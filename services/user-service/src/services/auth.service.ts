@@ -1,6 +1,7 @@
 import type { RegisterDto } from '../dtos/register.dto.js'
 import { userRepository } from '../repositories/prisma-user.repository.js'
 import { hashPassword } from '../utils/password.js'
+import { AppError } from '../errors/app-errors.js'
 
 class AuthService {
   async register(input: RegisterDto) {
@@ -8,25 +9,25 @@ class AuthService {
     const birthday = new Date(input.birthday)
 
     if (Number.isNaN(birthday.getTime())) {
-      throw new Error('INVALID_BIRTHDAY')
+      throw new AppError(400, 'INVALID_BIRTHDAY', 'Birthday is invalid')
     }
 
     const userWithPhone = await userRepository.findByPhone(phone)
 
     if (userWithPhone) {
-      throw new Error('PHONE_ALREADY_EXISTS')
+      throw new AppError(409, 'PHONE_ALREADY_EXISTS', 'Phone already exists')
     }
 
     const userWithEmail = await userRepository.findByEmail(email)
 
     if (userWithEmail) {
-      throw new Error('EMAIL_ALREADY_EXISTS')
+      throw new AppError(409, 'EMAIL_ALREADY_EXISTS', 'Email already exists')
     }
 
     const userWithUsername = await userRepository.findByUsername(username)
 
     if (userWithUsername) {
-      throw new Error('USERNAME_ALREADY_EXISTS')
+      throw new AppError(409, 'USERNAME_ALREADY_EXISTS', 'Username already exists')
     }
 
     const passwordHash = await hashPassword(password)
