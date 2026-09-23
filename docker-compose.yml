@@ -8,7 +8,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chat_app -d chat_app"]
+      test: ['CMD-SHELL', 'pg_isready -U chat_app -d chat_app']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -19,7 +19,7 @@ services:
       context: .
       dockerfile: Dockerfile.service
       args:
-        WORKSPACE: "@chat-app/user-service"
+        WORKSPACE: '@chat-app/user-service'
     environment:
       PORT: 3001
       DATABASE_URL: postgresql://chat_app:chat_app@postgres:5432/chat_app
@@ -34,7 +34,8 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health/ready"]
+      test:
+        ['CMD', 'wget', '-q', '--spider', 'http://localhost:3001/health/ready']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -46,7 +47,7 @@ services:
       context: .
       dockerfile: Dockerfile.service
       args:
-        WORKSPACE: "@chat-app/api-gateway"
+        WORKSPACE: '@chat-app/api-gateway'
     environment:
       PORT: 3000
       CLIENT_ORIGIN: http://localhost:4173
@@ -55,7 +56,7 @@ services:
       auth-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3000/health']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -67,7 +68,7 @@ services:
       context: .
       dockerfile: Dockerfile.web
     ports:
-      - "4173:80"
+      - '4173:80'
     depends_on:
       api-gateway:
         condition: service_healthy
