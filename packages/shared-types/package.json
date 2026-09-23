@@ -1,5 +1,5 @@
 {
-  "name": "@viettaste/shared-types",
+  "name": "@chat-app/shared-types",
   "version": "1.0.0",
   "private": true,
   "type": "module",

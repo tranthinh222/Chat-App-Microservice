@@ -1,5 +1,5 @@
 {
-  "name": "viettaste-map",
+  "name": "chat-app",
   "version": "1.0.0",
   "private": true,
   "engines": {
@@ -11,7 +11,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n web,gateway,user,place,review -c blue,magenta,yellow,green,cyan \"npm run dev -w @chat-app/web\" \"npm run dev -w @viettaste/api-gateway\" \"npm run dev -w @viettaste/user-service\" \"npm run dev -w @viettaste/place-service\" \"npm run dev -w @viettaste/review-service\"",
+    "dev": "concurrently -n web,gateway,user -c blue,magenta,yellow \"npm run dev -w @chat-app/web\" \"npm run dev -w @chat-app/api-gateway\" \"npm run dev -w @chat-app/user-service\"",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
