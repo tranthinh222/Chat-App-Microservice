@@ -134,7 +134,7 @@ export class AuthService {
     }
   }
 
-  async refresh(input: RefreshTokenDto): Promise<void> {
+  async refresh(input: RefreshTokenDto) {
     const tokenHash = hashToken(input.refreshToken)
     const storedToken =
       await this.refreshTokenRepository.findByTokenHash(tokenHash)
@@ -150,6 +150,38 @@ export class AuthService {
         'Refresh token is invalid',
       )
     }
+
+    const user = await this.userRepository.findById(storedToken.userId)
+
+    if (!user || user.status !== 'ACTIVE' || user.isBanned) {
+      throw new AppError(
+        401,
+        'INVALID_REFRESH_TOKEN',
+        'Refresh token is invalid',
+      )
+    }
+
+    await this.refreshTokenRepository.revokeById(storedToken.id)
+
+    const accessToken = this.tokenService.createAccessToken({
+      userId: user.id,
+      role: user.role,
+      username: user.username,
+    })
+    const refreshToken = this.tokenService.createRefreshToken()
+    const expiresAt = new Date(
+      Date.now() + env.refreshTokenExpiresInDays * 24 * 60 * 60 * 1000,
+    )
+
+    await this.refreshTokenRepository.create({
+      userId: user.id,
+      tokenHash: hashToken(refreshToken),
+      expiresAt,
+    })
+
+    return {
+      accessToken,
+      refreshToken,
+    }
   }
 }
-
