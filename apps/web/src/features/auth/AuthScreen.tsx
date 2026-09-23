@@ -1,99 +1,176 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { User } from '../../shared/types/user'
-import {
-  readUsers,
-  saveSession,
-  saveUsers,
-} from '../../shared/lib/auth-storage'
+import { saveSession } from '../../shared/lib/auth-storage'
+import { login, register } from './auth-api'
 import { AuthArtwork } from './components/AuthArtwork'
 import { Field, GenderIcon, VisibilityIcon } from './components/FormField'
 
 type AuthMode = 'login' | 'register'
+type Gender = User['gender']
 
-export function AuthScreen({
-  onAuthenticated,
-}: {
+type AuthScreenProps = {
   onAuthenticated: (user: User) => void
-}) {
+}
+
+type AuthForm = {
+  username: string
+  email: string
+  password: string
+  confirm: string
+  phone: string
+  birthday: string
+  gender: Gender | ''
+}
+
+const INITIAL_FORM: AuthForm = {
+  username: '',
+  email: '',
+  password: '',
+  confirm: '',
+  phone: '',
+  birthday: '',
+  gender: '',
+}
+
+const GENDERS: Gender[] = ['MALE', 'FEMALE', 'OTHER']
+
+const GENDER_LABELS: Record<Gender, string> = {
+  MALE: 'Male',
+  FEMALE: 'Female',
+  OTHER: 'Other',
+}
+
+export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   const [mode, setMode] = useState<AuthMode>('login')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [genderOpen, setGenderOpen] = useState(false)
-  const [form, setForm] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirm: '',
-    phone: '',
-    birthday: '',
-    gender: '',
-  })
+  const [form, setForm] = useState<AuthForm>(INITIAL_FORM)
 
-  const update = (field: keyof typeof form, value: string) => {
+  const isRegisterMode = mode === 'register'
+  const today = new Date().toISOString().split('T')[0]
+  const kicker = isRegisterMode ? 'GET STARTED' : 'WELCOME BACK'
+  const title = isRegisterMode ? 'Create your account' : 'Sign in to Nexus'
+  const description = isRegisterMode
+    ? 'Set up your profile and start chatting with your team.'
+    : 'Enter your details to continue to your conversations.'
+  const switchPrompt = isRegisterMode
+    ? 'Already have an account?'
+    : "Don't have an account?"
+  const switchAction = isRegisterMode ? 'Sign in' : 'Sign up now'
+  const submitLabel = isRegisterMode ? 'Create account' : 'Sign in'
+  const passwordAutoComplete = isRegisterMode
+    ? 'new-password'
+    : 'current-password'
+  const selectedGenderLabel = form.gender
+    ? GENDER_LABELS[form.gender]
+    : 'Select gender'
+
+  const updateField = (field: keyof AuthForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }))
     setError('')
   }
 
-  const submit = (event: FormEvent) => {
-    event.preventDefault()
-    const users = readUsers()
-    const email = form.email.trim().toLowerCase()
+  const validateForm = (): string | null => {
+    const email = form.email.trim()
 
     if (!email.includes('@') || form.password.length < 8) {
-      setError('Enter a valid email and a password with at least 8 characters.')
-      return
+      return 'Enter a valid email and a password with at least 8 characters.'
     }
 
-    if (mode === 'login') {
-      const user = users.find(
-        (item) => item.email === email && item.password === form.password,
-      )
-      if (!user) {
-        setError(
-          'Incorrect email or password. Create an account first if you are new.',
-        )
-        return
-      }
-      saveSession(user)
-      onAuthenticated(user)
-      return
+    if (!isRegisterMode) {
+      return null
     }
 
-    if (
+    const hasMissingRegistrationField =
       !form.username.trim() ||
       !form.phone.trim() ||
       !form.birthday ||
       !form.gender
-    ) {
-      setError('Please complete all required registration fields.')
-      return
+
+    if (hasMissingRegistrationField) {
+      return 'Please complete all required registration fields.'
     }
+
     if (form.password !== form.confirm) {
-      setError('The password confirmation does not match.')
-      return
+      return 'The password confirmation does not match.'
     }
-    if (users.some((item) => item.email === email)) {
-      setError('This email is already in use.')
+
+    return null
+  }
+
+  const registerUser = async (email: string): Promise<void> => {
+    if (!form.gender) {
       return
     }
 
-    const user: User = {
-      ...form,
+    await register({
       email,
+      password: form.password,
       username: form.username.trim().toLowerCase(),
+      phone: form.phone.trim().replace(/\s/g, ''),
+      birthday: form.birthday,
+      gender: form.gender,
+    })
+  }
+
+  const completeAuthentication = async (email: string): Promise<void> => {
+    if (isRegisterMode) {
+      await registerUser(email)
     }
-    saveUsers([...users, user])
-    saveSession(user)
-    onAuthenticated(user)
+
+    const session = await login({
+      email,
+      password: form.password,
+    })
+
+    saveSession(session)
+    onAuthenticated(session.user)
+  }
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault()
+
+    const validationError = validateForm()
+
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+      const email = form.email.trim().toLowerCase()
+      await completeAuthentication(email)
+    } catch (requestError) {
+      const message =
+        requestError instanceof Error
+          ? requestError.message
+          : 'Unable to connect to the server.'
+
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const switchMode = () => {
-    setMode((current) => (current === 'login' ? 'register' : 'login'))
+    const nextMode: AuthMode = isRegisterMode ? 'login' : 'register'
+
+    setMode(nextMode)
     setError('')
     setShowPassword(false)
     setShowConfirmPassword(false)
+    setGenderOpen(false)
+  }
+
+  const selectGender = (gender: Gender) => {
+    updateField('gender', gender)
     setGenderOpen(false)
   }
 
@@ -105,36 +182,26 @@ export function AuthScreen({
           <div className="auth-mobile-brand">
             <span>✦</span> Nexus
           </div>
-          <span className="auth-kicker">
-            {mode === 'login' ? 'WELCOME BACK' : 'GET STARTED'}
-          </span>
-          <h2>
-            {mode === 'login' ? 'Sign in to Nexus' : 'Create your account'}
-          </h2>
-          <p className="auth-description">
-            {mode === 'login'
-              ? 'Enter your details to continue to your conversations.'
-              : 'Set up your profile and start chatting with your team.'}
-          </p>
+          <span className="auth-kicker">{kicker}</span>
+          <h2>{title}</h2>
+          <p className="auth-description">{description}</p>
           <p className="auth-switch">
-            {mode === 'login'
-              ? "Don't have an account?"
-              : 'Already have an account?'}{' '}
+            {switchPrompt}{' '}
             <button type="button" onClick={switchMode}>
-              {mode === 'login' ? 'Sign up now' : 'Sign in'}
+              {switchAction}
             </button>
           </p>
 
           {error && <div className="form-error">⚠ {error}</div>}
 
-          {mode === 'register' && (
+          {isRegisterMode && (
             <>
               <div className="form-grid">
                 <Field
                   label="Username"
                   icon="user"
                   value={form.username}
-                  onChange={(value) => update('username', value)}
+                  onChange={(value) => updateField('username', value)}
                   placeholder="your_username"
                   autoComplete="username"
                 />
@@ -143,7 +210,7 @@ export function AuthScreen({
                   icon="phone"
                   type="tel"
                   value={form.phone}
-                  onChange={(value) => update('phone', value)}
+                  onChange={(value) => updateField('phone', value)}
                   placeholder="0912 345 678"
                   autoComplete="tel"
                 />
@@ -160,19 +227,8 @@ export function AuthScreen({
                       onClick={() => setGenderOpen((open) => !open)}
                       aria-expanded={genderOpen}
                     >
-                      {form.gender ? (
-                        <GenderIcon
-                          gender={form.gender as 'MALE' | 'FEMALE' | 'OTHER'}
-                        />
-                      ) : (
-                        <GenderIcon gender="SELECTOR" />
-                      )}
-                      <span>
-                        {form.gender
-                          ? form.gender.charAt(0) +
-                            form.gender.slice(1).toLowerCase()
-                          : 'Select gender'}
-                      </span>
+                      <GenderIcon gender={form.gender || 'SELECTOR'} />
+                      <span>{selectedGenderLabel}</span>
                       <svg
                         className="select-chevron"
                         viewBox="0 0 20 20"
@@ -184,37 +240,26 @@ export function AuthScreen({
 
                     {genderOpen && (
                       <div className="gender-menu" role="listbox">
-                        {(['MALE', 'FEMALE', 'OTHER'] as const).map(
-                          (gender) => (
-                            <button
-                              key={gender}
-                              type="button"
-                              className={
-                                form.gender === gender ? 'selected' : ''
-                              }
-                              onClick={() => {
-                                update('gender', gender)
-                                setGenderOpen(false)
-                              }}
-                              role="option"
-                              aria-selected={form.gender === gender}
-                            >
-                              <span className="gender-option-icon">
-                                <GenderIcon gender={gender} />
-                              </span>
-                              <span>
-                                {gender === 'MALE'
-                                  ? 'Male'
-                                  : gender === 'FEMALE'
-                                    ? 'Female'
-                                    : 'Other'}
-                              </span>
-                              {form.gender === gender && (
-                                <span className="gender-check">✓</span>
-                              )}
-                            </button>
-                          ),
-                        )}
+                        {GENDERS.map((gender) => (
+                          <button
+                            key={gender}
+                            type="button"
+                            className={
+                              form.gender === gender ? 'selected' : ''
+                            }
+                            onClick={() => selectGender(gender)}
+                            role="option"
+                            aria-selected={form.gender === gender}
+                          >
+                            <span className="gender-option-icon">
+                              <GenderIcon gender={gender} />
+                            </span>
+                            <span>{GENDER_LABELS[gender]}</span>
+                            {form.gender === gender && (
+                              <span className="gender-check">✓</span>
+                            )}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -224,8 +269,8 @@ export function AuthScreen({
                   icon="calendar"
                   type="date"
                   value={form.birthday}
-                  onChange={(value) => update('birthday', value)}
-                  max={new Date().toISOString().split('T')[0]}
+                  onChange={(value) => updateField('birthday', value)}
+                  max={today}
                 />
               </div>
             </>
@@ -236,7 +281,7 @@ export function AuthScreen({
             icon="mail"
             type="email"
             value={form.email}
-            onChange={(value) => update('email', value)}
+            onChange={(value) => updateField('email', value)}
             placeholder="you@example.com"
             autoComplete="email"
           />
@@ -245,11 +290,9 @@ export function AuthScreen({
             icon="lock"
             type={showPassword ? 'text' : 'password'}
             value={form.password}
-            onChange={(value) => update('password', value)}
+            onChange={(value) => updateField('password', value)}
             placeholder="At least 8 characters"
-            autoComplete={
-              mode === 'login' ? 'current-password' : 'new-password'
-            }
+            autoComplete={passwordAutoComplete}
             action={
               <button
                 className="password-toggle"
@@ -262,13 +305,13 @@ export function AuthScreen({
             }
           />
 
-          {mode === 'register' && (
+          {isRegisterMode && (
             <Field
               label="Confirm password"
               icon="lock"
               type={showConfirmPassword ? 'text' : 'password'}
               value={form.confirm}
-              onChange={(value) => update('confirm', value)}
+              onChange={(value) => updateField('confirm', value)}
               placeholder="Enter your password again"
               autoComplete="new-password"
               action={
@@ -285,22 +328,23 @@ export function AuthScreen({
               }
             />
           )}
-          {mode === 'login' && (
+          {!isRegisterMode && (
             <button className="forgot" type="button">
               Forgot password?
             </button>
           )}
-          <button className="primary-button" type="submit">
-            {mode === 'login' ? 'Sign in' : 'Create account'} <span>→</span>
+          <button className="primary-button" type="submit" disabled={loading}>
+            {loading ? 'Please wait…' : submitLabel}{' '}
+            <span>→</span>
           </button>
-          {mode === 'register' && (
+          {isRegisterMode && (
             <p className="terms-note">
               By creating an account, you agree to our Terms of Service and
               Privacy Policy.
             </p>
           )}
           <p className="demo-note">
-            <span /> Demo mode · Your data stays in this browser
+            <span /> Connected through the secure API gateway
           </p>
         </form>
       </section>

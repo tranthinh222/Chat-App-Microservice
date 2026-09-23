@@ -1,8 +1,13 @@
 export type User = {
-  username: string
-  email: string
-  password: string
+  id: number
   phone: string
+  email: string
+  username: string
   birthday: string
-  gender: string
+  gender: 'MALE' | 'FEMALE' | 'OTHER'
+  avatarUrl: string | null
+  status: 'ACTIVE' | 'INACTIVE'
+  role: 'USER' | 'ADMIN'
+  isBanned: boolean
+  createdAt?: string
 }

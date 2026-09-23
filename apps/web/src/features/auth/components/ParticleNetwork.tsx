@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from 'react'
 
 export function ParticleNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -9,13 +9,23 @@ export function ParticleNetwork() {
     const context = canvas?.getContext('2d')
     if (!canvas || !panel || !context) return
 
-    type Particle = { x: number; y: number; vx: number; vy: number; radius: number; glow: number; phase: number }
+    type Particle = {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      radius: number
+      glow: number
+      phase: number
+    }
     let particles: Particle[] = []
     let frame = 0
     let width = 0
     let height = 0
     const pointer = { x: 0, y: 0, active: false }
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
 
     const resize = () => {
       const bounds = panel.getBoundingClientRect()
@@ -28,14 +38,17 @@ export function ParticleNetwork() {
       canvas.style.height = `${height}px`
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
 
-      const count = Math.max(32, Math.min(64, Math.round((width * height) / 11000)))
+      const count = Math.max(
+        32,
+        Math.min(64, Math.round((width * height) / 11000)),
+      )
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - .5) * .16,
-        vy: -(Math.random() * .33 + .22),
-        radius: Math.random() * 1.5 + .8,
-        glow: Math.random() * .35 + .65,
+        vx: (Math.random() - 0.5) * 0.16,
+        vy: -(Math.random() * 0.33 + 0.22),
+        radius: Math.random() * 1.5 + 0.8,
+        glow: Math.random() * 0.35 + 0.65,
         phase: Math.random() * Math.PI * 2,
       }))
     }
@@ -46,7 +59,9 @@ export function ParticleNetwork() {
       pointer.y = event.clientY - bounds.top
       pointer.active = true
     }
-    const handlePointerLeave = () => { pointer.active = false }
+    const handlePointerLeave = () => {
+      pointer.active = false
+    }
 
     const draw = () => {
       context.clearRect(0, 0, width, height)
@@ -58,15 +73,15 @@ export function ParticleNetwork() {
             const dy = pointer.y - particle.y
             const distance = Math.hypot(dx, dy)
             if (distance < 180 && distance > 1) {
-              const pull = (1 - distance / 180) * .008
+              const pull = (1 - distance / 180) * 0.008
               particle.vx += (dx / distance) * pull
               particle.vy += (dy / distance) * pull
             }
           }
 
-          particle.phase += .018
-          particle.vx *= .998
-          particle.vy = Math.max(-.85, Math.min(-.2, particle.vy))
+          particle.phase += 0.018
+          particle.vx *= 0.998
+          particle.vy = Math.max(-0.85, Math.min(-0.2, particle.vy))
           particle.x += particle.vx
           particle.y += particle.vy
           if (particle.x < -8) particle.x = width + 8
@@ -74,11 +89,11 @@ export function ParticleNetwork() {
           if (particle.y < -12) {
             particle.y = height + 12
             particle.x = Math.random() * width
-            particle.vy = -(Math.random() * .33 + .22)
+            particle.vy = -(Math.random() * 0.33 + 0.22)
           }
         }
 
-        const twinkle = particle.glow + Math.sin(particle.phase) * .18
+        const twinkle = particle.glow + Math.sin(particle.phase) * 0.18
         context.beginPath()
         context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
         context.fillStyle = `rgba(220, 228, 255, ${Math.min(1, twinkle)})`
@@ -97,8 +112,8 @@ export function ParticleNetwork() {
             context.beginPath()
             context.moveTo(a.x, a.y)
             context.lineTo(b.x, b.y)
-            context.strokeStyle = `rgba(125, 148, 242, ${(1 - distance / 115) * .34})`
-            context.lineWidth = .8
+            context.strokeStyle = `rgba(125, 148, 242, ${(1 - distance / 115) * 0.34})`
+            context.lineWidth = 0.8
             context.stroke()
           }
         }
@@ -106,12 +121,15 @@ export function ParticleNetwork() {
 
       if (pointer.active) {
         particles.forEach((particle) => {
-          const distance = Math.hypot(pointer.x - particle.x, pointer.y - particle.y)
+          const distance = Math.hypot(
+            pointer.x - particle.x,
+            pointer.y - particle.y,
+          )
           if (distance < 145) {
             context.beginPath()
             context.moveTo(pointer.x, pointer.y)
             context.lineTo(particle.x, particle.y)
-            context.strokeStyle = `rgba(173, 190, 255, ${(1 - distance / 145) * .58})`
+            context.strokeStyle = `rgba(173, 190, 255, ${(1 - distance / 145) * 0.58})`
             context.lineWidth = 1
             context.stroke()
           }
@@ -136,5 +154,7 @@ export function ParticleNetwork() {
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="particle-network" aria-hidden="true" />
+  return (
+    <canvas ref={canvasRef} className="particle-network" aria-hidden="true" />
+  )
 }

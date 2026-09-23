@@ -1,28 +1,19 @@
-import type { User } from "../types/user"
+import type { AuthSession } from '../types/auth'
 
-export const USERS_KEY = 'chat-app-users'
-export const SESSION_KEY = 'chat-app-session'
+const SESSION_KEY = 'chat-app-session'
 
-export function readUsers(): User[] {
+export function readSession(): AuthSession | null {
   try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) ?? '[]')
+    return JSON.parse(localStorage.getItem(SESSION_KEY) ?? 'null')
   } catch {
-    return []
+    return null
   }
 }
 
-export function readSession(): User | null {
-  try { return JSON.parse(localStorage.getItem(SESSION_KEY) ?? "null") } catch { return null }
+export function saveSession(session: AuthSession): void {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
 }
 
-export function saveUsers(users: User[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
-}
-
-export function saveSession(user: User) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(user))
-}
-
-export function clearSession() {
+export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY)
 }

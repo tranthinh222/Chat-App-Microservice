@@ -16,15 +16,34 @@ app.get('/health', (_request, response) => {
   })
 })
 
-const routes = [
-  ['/api/auth', process.env.AUTH_SERVICE_URL ?? 'http://localhost:3001'],
-  ['/api/places', process.env.PLACE_SERVICE_URL ?? 'http://localhost:3002'],
-  ['/api/reviews', process.env.REVIEW_SERVICE_URL ?? 'http://localhost:3003'],
-] as const
+const authServiceUrl =
+  process.env.AUTH_SERVICE_URL ?? 'http://localhost:3001'
 
-for (const [route, target] of routes) {
-  app.use(route, createProxyMiddleware({ target, changeOrigin: true }))
+function authPath(path: string): string {
+  return '/api/v1/auth' + path
 }
+
+function userPath(path: string): string {
+  return '/api/v1/users' + path
+}
+
+app.use(
+  '/api/auth',
+  createProxyMiddleware({
+    target: authServiceUrl,
+    changeOrigin: true,
+    pathRewrite: authPath,
+  }),
+)
+
+app.use(
+  '/api/users',
+  createProxyMiddleware({
+    target: authServiceUrl,
+    changeOrigin: true,
+    pathRewrite: userPath,
+  }),
+)
 
 app.use((_request, response) => {
   response.status(404).json({ message: 'Resource not found' })
