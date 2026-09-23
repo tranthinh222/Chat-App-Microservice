@@ -343,9 +343,6 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               Privacy Policy.
             </p>
           )}
-          <p className="demo-note">
-            <span /> Connected through the secure API gateway
-          </p>
         </form>
       </section>
     </main>
