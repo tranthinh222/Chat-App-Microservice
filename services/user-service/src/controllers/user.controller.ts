@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 import { AppError } from '../errors/app-errors.js'
-import { userService } from '../services/user.service.js'
+import { userService } from '../config/container.js'
 
 class UserController {
   async getMe(req: Request, res: Response): Promise<void> {

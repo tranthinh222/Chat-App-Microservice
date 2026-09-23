@@ -1,9 +1,11 @@
 import { AppError } from '../errors/app-errors.js'
-import { userRepository } from '../repositories/prisma-user.repository.js'
+import type { UserRepository } from '../repositories/user.repository.js'
 
-class UserService {
+export class UserService {
+  constructor(private readonly userRepository: UserRepository) {}
+
   async getMyProfile(userId: number) {
-    const user = await userRepository.findById(userId)
+    const user = await this.userRepository.findById(userId)
 
     if (!user) {
       throw new AppError(404, 'USER_NOT_FOUND', 'User not found')
@@ -21,4 +23,3 @@ class UserService {
   }
 }
 
-export const userService = new UserService()
