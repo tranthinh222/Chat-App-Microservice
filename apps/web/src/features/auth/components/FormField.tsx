@@ -99,6 +99,7 @@ export function Field({
   action,
   autoComplete,
   max,
+  error,
 }: {
   label: string
   icon: InputIconName
@@ -109,9 +110,10 @@ export function Field({
   action?: ReactNode
   autoComplete?: string
   max?: string
+  error?: string
 }) {
   return (
-    <label className="field">
+    <label className={error ? 'field field--error' : 'field'}>
       <span>{label}</span>
       <div>
         <InputIcon name={icon} />
@@ -126,6 +128,7 @@ export function Field({
         />
         {action}
       </div>
+      {error && <small className="field-error">{error}</small>}
     </label>
   )
 }

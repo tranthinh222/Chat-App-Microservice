@@ -9,6 +9,26 @@ type ApiEnvelope<T> = {
 
 type ApiErrorBody = {
   message?: string
+  errors?: Array<{
+    field: string
+    message: string
+  }>
+}
+
+export class ApiRequestError extends Error {
+  readonly fieldErrors: Record<string, string>
+
+  constructor(
+    message: string,
+    errors: ApiErrorBody['errors'] = [],
+    cause?: unknown,
+  ) {
+    super(message, { cause })
+    this.name = 'ApiRequestError'
+    this.fieldErrors = Object.fromEntries(
+      errors.map((error) => [error.field, error.message]),
+    )
+  }
 }
 
 export const httpClient = axios.create({
@@ -18,9 +38,7 @@ export const httpClient = axios.create({
   },
 })
 
-export async function apiRequest<T>(
-  config: AxiosRequestConfig,
-): Promise<T> {
+export async function apiRequest<T>(config: AxiosRequestConfig): Promise<T> {
   try {
     const response = await httpClient.request<ApiEnvelope<T>>(config)
 
@@ -31,9 +49,13 @@ export async function apiRequest<T>(
     return response.data.data
   } catch (error) {
     if (axios.isAxiosError<ApiErrorBody>(error)) {
-      throw new Error(error.response?.data.message ?? 'Request failed', {
-        cause: error,
-      })
+      const body = error.response?.data
+
+      throw new ApiRequestError(
+        body?.message ?? 'Request failed',
+        body?.errors,
+        error,
+      )
     }
 
     throw error

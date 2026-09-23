@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { User } from '../../shared/types/user'
 import { saveSession } from '../../shared/lib/auth-storage'
+import { ApiRequestError } from '../../shared/api/http-client'
 import { login, register } from './auth-api'
 import { AuthArtwork } from './components/AuthArtwork'
 import { Field, GenderIcon, VisibilityIcon } from './components/FormField'
@@ -22,6 +23,8 @@ type AuthForm = {
   birthday: string
   gender: Gender | ''
 }
+
+type FormErrors = Partial<Record<keyof AuthForm, string>>
 
 const INITIAL_FORM: AuthForm = {
   username: '',
@@ -44,6 +47,7 @@ const GENDER_LABELS: Record<Gender, string> = {
 export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   const [mode, setMode] = useState<AuthMode>('login')
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<FormErrors>({})
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -72,6 +76,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   const updateField = (field: keyof AuthForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }))
     setError('')
+    setFieldErrors((current) => ({ ...current, [field]: undefined }))
   }
 
   const validateForm = (): string | null => {
@@ -143,11 +148,30 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
 
     setLoading(true)
     setError('')
+    setFieldErrors({})
 
     try {
       const email = form.email.trim().toLowerCase()
       await completeAuthentication(email)
     } catch (requestError) {
+      if (requestError instanceof ApiRequestError) {
+        const nextFieldErrors: FormErrors = {}
+
+        for (const [field, message] of Object.entries(
+          requestError.fieldErrors,
+        )) {
+          if (field in form) {
+            nextFieldErrors[field as keyof AuthForm] = message
+          }
+        }
+
+        if (Object.keys(nextFieldErrors).length > 0) {
+          setFieldErrors(nextFieldErrors)
+          setError('Please check the highlighted fields.')
+          return
+        }
+      }
+
       const message =
         requestError instanceof Error
           ? requestError.message
@@ -164,6 +188,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
 
     setMode(nextMode)
     setError('')
+    setFieldErrors({})
     setShowPassword(false)
     setShowConfirmPassword(false)
     setGenderOpen(false)
@@ -204,6 +229,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                   onChange={(value) => updateField('username', value)}
                   placeholder="your_username"
                   autoComplete="username"
+                  error={fieldErrors.username}
                 />
                 <Field
                   label="Phone number"
@@ -213,10 +239,17 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                   onChange={(value) => updateField('phone', value)}
                   placeholder="0912 345 678"
                   autoComplete="tel"
+                  error={fieldErrors.phone}
                 />
               </div>
               <div className="form-grid">
-                <fieldset className="field gender-field">
+                <fieldset
+                  className={
+                    fieldErrors.gender
+                      ? 'field gender-field field--error'
+                      : 'field gender-field'
+                  }
+                >
                   <legend>Gender</legend>
                   <div className="gender-picker">
                     <button
@@ -244,9 +277,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                           <button
                             key={gender}
                             type="button"
-                            className={
-                              form.gender === gender ? 'selected' : ''
-                            }
+                            className={form.gender === gender ? 'selected' : ''}
                             onClick={() => selectGender(gender)}
                             role="option"
                             aria-selected={form.gender === gender}
@@ -263,6 +294,9 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                       </div>
                     )}
                   </div>
+                  {fieldErrors.gender && (
+                    <small className="field-error">{fieldErrors.gender}</small>
+                  )}
                 </fieldset>
                 <Field
                   label="Birthday"
@@ -271,6 +305,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                   value={form.birthday}
                   onChange={(value) => updateField('birthday', value)}
                   max={today}
+                  error={fieldErrors.birthday}
                 />
               </div>
             </>
@@ -284,6 +319,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             onChange={(value) => updateField('email', value)}
             placeholder="you@example.com"
             autoComplete="email"
+            error={fieldErrors.email}
           />
           <Field
             label="Password"
@@ -293,6 +329,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             onChange={(value) => updateField('password', value)}
             placeholder="At least 8 characters"
             autoComplete={passwordAutoComplete}
+            error={fieldErrors.password}
             action={
               <button
                 className="password-toggle"
@@ -334,8 +371,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             </button>
           )}
           <button className="primary-button" type="submit" disabled={loading}>
-            {loading ? 'Please wait…' : submitLabel}{' '}
-            <span>→</span>
+            {loading ? 'Please wait…' : submitLabel} <span>→</span>
           </button>
           {isRegisterMode && (
             <p className="terms-note">
