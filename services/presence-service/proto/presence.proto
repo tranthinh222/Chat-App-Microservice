@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package presence;
+
+enum PresenceStatus {
+    PRESENCE_STATUS_UNSPECIFIED = 0;
+    ONLINE = 1;
+    IDLE = 2;
+    OFFLINE = 3;
+}
+
+service PresenceService {
+    rpc RegisterConnection(RegisterConnectionRequest)
+        returns (PresenceResponse);
+
+    rpc Heartbeat(HeartbeatRequest)
+        returns (HeartbeatResponse);
+
+    rpc TouchActivity(TouchActivityRequest)
+        returns (PresenceResponse);
+
+    rpc Disconnect(DisconnectRequest)
+        returns (PresenceResponse);
+
+    rpc GetPresence(GetPresenceRequest)
+        returns (PresenceResponse);
+
+    rpc BatchGetPresence(BatchGetPresenceRequest)
+        returns (BatchGetPresenceResponse);
+}
+
+message RegisterConnectionRequest {
+    string user_id = 1;
+    string connection_id = 2;
+    string gateway_id = 3;
+    string device_id = 4;
+}
+
+message HeartbeatRequest {
+    string user_id = 1;
+    string connection_id = 2;
+}
+
+message TouchActivityRequest {
+    string user_id = 1;
+    string connection_id = 2;
+}
+
+message DisconnectRequest {
+    string user_id = 1;
+    string connection_id = 2;
+}
+
+message GetPresenceRequest {
+    string user_id = 1;
+}
+
+message BatchGetPresenceRequest {
+    repeated string user_ids = 1;
+}
+
+message PresenceResponse {
+    string user_id = 1;
+    PresenceStatus status = 2;
+    int64 last_seen_at = 3;
+    int64 updated_at = 4;
+}
+
+message HeartbeatResponse {
+    bool success = 1;
+}
+
+message BatchGetPresenceResponse {
+    repeated PresenceResponse presences = 1;
+}
+
