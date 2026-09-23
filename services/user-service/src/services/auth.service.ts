@@ -1,11 +1,9 @@
 import type { RegisterDto } from '../dtos/register.dto.js'
 import type { LoginUserDto } from '../dtos/login-user.dto.js'
-import { userRepository } from '../repositories/prisma-user.repository.js'
 import type { UserRepository } from '../repositories/user.repository.js'
 import { comparePassword, hashPassword } from '../utils/password.js'
 import { AppError } from '../errors/app-errors.js'
-import { tokenService, type TokenService } from './token.service.js'
-import { refreshTokenRepository } from '../repositories/prisma-refresh-token.repository.js'
+import type { TokenService } from './token.service.js'
 import type { RefreshTokenRepository } from '../repositories/refresh-token.repository.js'
 import { hashToken } from '../utils/token-hash.js'
 import { env } from '../config/env.js'
@@ -155,8 +153,3 @@ export class AuthService {
   }
 }
 
-export const authService = new AuthService(
-  userRepository,
-  refreshTokenRepository,
-  tokenService,
-)
