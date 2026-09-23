@@ -7,6 +7,7 @@ import { tokenService } from './token.service.js'
 import { refreshTokenRepository } from '../repositories/prisma-refresh-token.repository.js'
 import { hashToken } from '../utils/token-hash.js'
 import { env } from '../config/env.js'
+import type { RefreshTokenDto } from '../dtos/refresh-token.dto.js'
 
 class AuthService {
   async register(input: RegisterDto) {
@@ -125,6 +126,24 @@ class AuthService {
         role: user.role,
         isBanned: user.isBanned,
       },
+    }
+  }
+
+  async refresh(input: RefreshTokenDto): Promise<void> {
+    const tokenHash = hashToken(input.refreshToken)
+    const storedToken =
+      await refreshTokenRepository.findByTokenHash(tokenHash)
+
+    if (
+      !storedToken ||
+      storedToken.revokedAt !== null ||
+      storedToken.expiresAt <= new Date()
+    ) {
+      throw new AppError(
+        401,
+        'INVALID_REFRESH_TOKEN',
+        'Refresh token is invalid',
+      )
     }
   }
 }
