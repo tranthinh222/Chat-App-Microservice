@@ -1,15 +1,22 @@
 import type { RegisterDto } from '../dtos/register.dto.js'
 import type { LoginUserDto } from '../dtos/login-user.dto.js'
 import { userRepository } from '../repositories/prisma-user.repository.js'
+import type { UserRepository } from '../repositories/user.repository.js'
 import { comparePassword, hashPassword } from '../utils/password.js'
 import { AppError } from '../errors/app-errors.js'
-import { tokenService } from './token.service.js'
+import { tokenService, type TokenService } from './token.service.js'
 import { refreshTokenRepository } from '../repositories/prisma-refresh-token.repository.js'
+import type { RefreshTokenRepository } from '../repositories/refresh-token.repository.js'
 import { hashToken } from '../utils/token-hash.js'
 import { env } from '../config/env.js'
 import type { RefreshTokenDto } from '../dtos/refresh-token.dto.js'
 
-class AuthService {
+export class AuthService {
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly tokenService: TokenService,
+  ) {}
   async register(input: RegisterDto) {
     const { phone, email, username, password, gender } = input
     const birthday = new Date(input.birthday)
@@ -18,19 +25,19 @@ class AuthService {
       throw new AppError(400, 'INVALID_BIRTHDAY', 'Birthday is invalid')
     }
 
-    const userWithPhone = await userRepository.findByPhone(phone)
+    const userWithPhone = await this.userRepository.findByPhone(phone)
 
     if (userWithPhone) {
       throw new AppError(409, 'PHONE_ALREADY_EXISTS', 'Phone already exists')
     }
 
-    const userWithEmail = await userRepository.findByEmail(email)
+    const userWithEmail = await this.userRepository.findByEmail(email)
 
     if (userWithEmail) {
       throw new AppError(409, 'EMAIL_ALREADY_EXISTS', 'Email already exists')
     }
 
-    const userWithUsername = await userRepository.findByUsername(username)
+    const userWithUsername = await this.userRepository.findByUsername(username)
 
     if (userWithUsername) {
       throw new AppError(
@@ -42,7 +49,7 @@ class AuthService {
 
     const passwordHash = await hashPassword(password)
 
-    const user = await userRepository.create({
+    const user = await this.userRepository.create({
       phone,
       email,
       username,
@@ -67,7 +74,7 @@ class AuthService {
   }
 
   async login(input: LoginUserDto) {
-    const user = await userRepository.findByEmail(input.email)
+    const user = await this.userRepository.findByEmail(input.email)
 
     if (!user) {
       throw new AppError(
@@ -95,17 +102,17 @@ class AuthService {
       throw new AppError(403, 'ACCOUNT_BANNED', 'Account has been banned')
     }
 
-    const accessToken = tokenService.createAccessToken({
+    const accessToken = this.tokenService.createAccessToken({
       userId: user.id,
       role: user.role,
       username: user.username,
     })
-    const refreshToken = tokenService.createRefreshToken()
+    const refreshToken = this.tokenService.createRefreshToken()
     const expiresAt = new Date(
       Date.now() + env.refreshTokenExpiresInDays * 24 * 60 * 60 * 1000,
     )
 
-    await refreshTokenRepository.create({
+    await this.refreshTokenRepository.create({
       tokenHash: hashToken(refreshToken),
       userId: user.id,
       expiresAt,
@@ -132,7 +139,7 @@ class AuthService {
   async refresh(input: RefreshTokenDto): Promise<void> {
     const tokenHash = hashToken(input.refreshToken)
     const storedToken =
-      await refreshTokenRepository.findByTokenHash(tokenHash)
+      await this.refreshTokenRepository.findByTokenHash(tokenHash)
 
     if (
       !storedToken ||
@@ -148,4 +155,8 @@ class AuthService {
   }
 }
 
-export const authService = new AuthService()
+export const authService = new AuthService(
+  userRepository,
+  refreshTokenRepository,
+  tokenService,
+)

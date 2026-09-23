@@ -22,7 +22,7 @@ export type VerifiedAccessToken = {
   username: string
 }
 
-class TokenService {
+export class TokenService {
   createAccessToken(input: CreateAccessTokenInput): string {
     const payload: AccessTokenPayload = {
       type: 'access',
