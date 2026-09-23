@@ -110,7 +110,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
     await register({
       email,
       password: form.password,
-      username: form.username.trim().toLowerCase(),
+      username: form.username.trim(),
       phone: form.phone.trim().replace(/\s/g, ''),
       birthday: form.birthday,
       gender: form.gender,

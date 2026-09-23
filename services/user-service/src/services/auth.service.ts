@@ -35,16 +35,6 @@ export class AuthService {
       throw new AppError(409, 'EMAIL_ALREADY_EXISTS', 'Email already exists')
     }
 
-    const userWithUsername = await this.userRepository.findByUsername(username)
-
-    if (userWithUsername) {
-      throw new AppError(
-        409,
-        'USERNAME_ALREADY_EXISTS',
-        'Username already exists',
-      )
-    }
-
     const passwordHash = await hashPassword(password)
 
     const user = await this.userRepository.create({

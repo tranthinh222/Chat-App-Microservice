@@ -23,12 +23,6 @@ export class PrismaUserRepository implements UserRepository {
     })
   }
 
-  async findByUsername(username: string) {
-    return this.database.user.findFirst({
-      where: { username },
-    })
-  }
-
   async create(data: CreateUserData) {
     return this.database.user.create({
       data: {
