@@ -4,6 +4,9 @@ import { userRepository } from '../repositories/prisma-user.repository.js'
 import { comparePassword, hashPassword } from '../utils/password.js'
 import { AppError } from '../errors/app-errors.js'
 import { tokenService } from './token.service.js'
+import { refreshTokenRepository } from '../repositories/prisma-refresh-token.repository.js'
+import { hashToken } from '../utils/token-hash.js'
+import { env } from '../config/env.js'
 
 class AuthService {
   async register(input: RegisterDto) {
@@ -87,14 +90,29 @@ class AuthService {
       throw new AppError(403, 'ACCOUNT_NOT_ACTIVE', 'Account is not active')
     }
 
+    if (user.isBanned) {
+      throw new AppError(403, 'ACCOUNT_BANNED', 'Account has been banned')
+    }
+
     const accessToken = tokenService.createAccessToken({
       userId: user.id,
       role: user.role,
       username: user.username,
     })
+    const refreshToken = tokenService.createRefreshToken()
+    const expiresAt = new Date(
+      Date.now() + env.refreshTokenExpiresInDays * 24 * 60 * 60 * 1000,
+    )
+
+    await refreshTokenRepository.create({
+      tokenHash: hashToken(refreshToken),
+      userId: user.id,
+      expiresAt,
+    })
 
     return {
       accessToken,
+      refreshToken,
       user: {
         id: user.id,
         phone: user.phone,
