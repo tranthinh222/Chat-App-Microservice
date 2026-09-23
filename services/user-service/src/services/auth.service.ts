@@ -134,6 +134,18 @@ export class AuthService {
     }
   }
 
+  async logout(input: RefreshTokenDto): Promise<void> {
+    const storedToken = await this.refreshTokenRepository.findByTokenHash(
+      hashToken(input.refreshToken),
+    )
+
+    if (!storedToken || storedToken.revokedAt !== null) {
+      return
+    }
+
+    await this.refreshTokenRepository.revokeById(storedToken.id)
+  }
+
   async refresh(input: RefreshTokenDto) {
     const tokenHash = hashToken(input.refreshToken)
     const storedToken =
