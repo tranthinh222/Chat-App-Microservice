@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import { env } from '../config/env.js'
 import { AppError } from '../errors/app-errors.js'
 import type { Role } from '../generated/prisma/client.js'
+import { randomBytes } from 'node:crypto'
 
 type AccessTokenPayload = {
   type: 'access'
@@ -70,6 +71,9 @@ class TokenService {
         'Access token is invalid or expired',
       )
     }
+  }
+  createRefreshToken(): string {
+    return randomBytes(48).toString('base64url')
   }
 }
 
