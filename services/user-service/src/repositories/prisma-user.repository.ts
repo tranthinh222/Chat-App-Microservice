@@ -1,6 +1,10 @@
 import type { PrismaClient } from '../generated/prisma/client.js'
 import { prisma } from '../config/prisma.js'
-import type { CreateUserData, UserRepository } from './user.repository.js'
+import type {
+  CreateUserData,
+  UpdateUserData,
+  UserRepository,
+} from './user.repository.js'
 
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly database: PrismaClient) {}
@@ -33,6 +37,13 @@ export class PrismaUserRepository implements UserRepository {
         birthday: data.birthday,
         gender: data.gender,
       },
+    })
+  }
+
+  async updateById(id: number, data: UpdateUserData) {
+    return this.database.user.update({
+      where: { id },
+      data,
     })
   }
 }
