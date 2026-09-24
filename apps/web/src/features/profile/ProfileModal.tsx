@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { User } from '../../shared/types/user'
+import { getUserProfile } from './profile-api'
 
 type ProfileModalProps = {
   user: User
@@ -13,12 +14,44 @@ const GENDER_LABELS: Record<User['gender'], string> = {
 }
 
 function formatBirthday(value: string) {
-  const [year, month, day] = value.split('-')
+  const [date] = value.split('T')
+  const [year, month, day] = date.split('-')
 
   return year && month && day ? `${day}/${month}/${year}` : value
 }
 
 export function ProfileModal({ user, onClose }: ProfileModalProps) {
+  const [profile, setProfile] = useState<User>(user)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let active = true
+
+    getUserProfile(user.id)
+      .then((freshProfile) => {
+        if (active) {
+          setProfile((current) => ({ ...current, ...freshProfile }))
+        }
+      })
+      .catch((requestError: unknown) => {
+        if (!active) return
+
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : 'Không thể tải thông tin tài khoản',
+        )
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [user.id])
+
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
@@ -50,18 +83,21 @@ export function ProfileModal({ user, onClose }: ProfileModalProps) {
 
         <div className="profile-cover" />
 
+        {loading && <p className="profile-api-state">Đang tải thông tin…</p>}
+        {error && <p className="profile-api-state error">{error}</p>}
+
         <div className="profile-summary">
           <div className="profile-avatar-large">
-            {user.avatarUrl ? (
+            {profile.avatarUrl ? (
               <img
-                src={user.avatarUrl}
-                alt={`Ảnh đại diện của ${user.username}`}
+                src={profile.avatarUrl}
+                alt={`Ảnh đại diện của ${profile.username}`}
               />
             ) : (
-              user.username[0]?.toUpperCase()
+              profile.username[0]?.toUpperCase()
             )}
           </div>
-          <h3>{user.username}</h3>
+          <h3>{profile.username}</h3>
           <button
             className="profile-edit-button"
             type="button"
@@ -80,19 +116,19 @@ export function ProfileModal({ user, onClose }: ProfileModalProps) {
           <dl>
             <div>
               <dt>Giới tính</dt>
-              <dd>{GENDER_LABELS[user.gender]}</dd>
+              <dd>{GENDER_LABELS[profile.gender]}</dd>
             </div>
             <div>
               <dt>Ngày sinh</dt>
-              <dd>{formatBirthday(user.birthday)}</dd>
+              <dd>{formatBirthday(profile.birthday)}</dd>
             </div>
             <div>
               <dt>Điện thoại</dt>
-              <dd>{user.phone}</dd>
+              <dd>{profile.phone}</dd>
             </div>
             <div>
               <dt>Email</dt>
-              <dd>{user.email}</dd>
+              <dd>{profile.email}</dd>
             </div>
           </dl>
         </section>

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
+import { Plus, UserRoundPlus, UsersRound } from 'lucide-react'
 import type { User } from '../../shared/types/user'
 import { ProfileModal } from '../profile/ProfileModal'
 import { conversations, initialMessages } from './data'
@@ -117,8 +118,15 @@ export function ChatScreen({
             <span>⌕</span>
             <input placeholder="Tìm kiếm" aria-label="Tìm kiếm hội thoại" />
           </label>
-          <ToolButton label="Thêm bạn">♙＋</ToolButton>
-          <ToolButton label="Tạo nhóm">♧＋</ToolButton>
+          <ToolButton label="Thêm bạn">
+            <UserRoundPlus className="zalo-action-icon" aria-hidden="true" />
+          </ToolButton>
+          <ToolButton label="Tạo nhóm">
+            <span className="zalo-group-add-icon" aria-hidden="true">
+              <UsersRound />
+              <Plus />
+            </span>
+          </ToolButton>
         </div>
 
         <div className="zalo-filter-row">
