@@ -1,6 +1,30 @@
-import { useMemo, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { Plus, UserRoundPlus, UsersRound } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import {
+  AudioWaveform,
+  BriefcaseBusiness,
+  CloudLightning,
+  Contact,
+  ContactRound,
+  CreditCard,
+  Ellipsis,
+  FolderOpen,
+  ImageIcon,
+  LogOut,
+  MessageCircleMore,
+  MessageSquareMore,
+  Paperclip,
+  Pilcrow,
+  Plus,
+  ScanText,
+  SendHorizontal,
+  Settings,
+  Smile,
+  Sticker,
+  ThumbsUp,
+  UserRoundPlus,
+  UsersRound,
+} from 'lucide-react'
 import type { User } from '../../shared/types/user'
 import { ProfileModal } from '../profile/ProfileModal'
 import { conversations, initialMessages } from './data'
@@ -92,22 +116,34 @@ export function ChatScreen({
 
         <div className="zalo-rail-primary">
           <ToolButton label="Tin nhắn" active>
-            <span>☵</span>
+            <MessageCircleMore />
           </ToolButton>
           <ToolButton label="Danh bạ">
-            <span>♙</span>
+            <ContactRound />
+          </ToolButton>
+        </div>
+
+        <div className="zalo-rail-middle">
+          <ToolButton label="Tin nhắn thoại">
+            <AudioWaveform />
           </ToolButton>
         </div>
 
         <div className="zalo-rail-secondary">
           <ToolButton label="Lưu trữ đám mây">
-            <span>☁</span>
+            <CloudLightning />
+          </ToolButton>
+          <ToolButton label="Thư mục cloud">
+            <FolderOpen />
+          </ToolButton>
+          <ToolButton label="Công việc">
+            <BriefcaseBusiness />
           </ToolButton>
           <ToolButton label="Cài đặt">
-            <span>⚙</span>
+            <Settings />
           </ToolButton>
           <ToolButton label="Đăng xuất" onClick={onLogout}>
-            <span>↪</span>
+            <LogOut />
           </ToolButton>
         </div>
       </nav>
@@ -232,28 +268,52 @@ export function ChatScreen({
         </div>
 
         <div className="zalo-composer-tools">
-          <ToolButton label="Gửi sticker">☺</ToolButton>
-          <ToolButton label="Gửi hình ảnh">▧</ToolButton>
-          <ToolButton label="Đính kèm tệp">⌕</ToolButton>
-          <ToolButton label="Gửi danh thiếp">▤</ToolButton>
-          <ToolButton label="Định dạng văn bản">A✎</ToolButton>
-          <ToolButton label="Thêm tùy chọn">•••</ToolButton>
+          <ToolButton label="Gửi sticker">
+            <Sticker />
+          </ToolButton>
+          <ToolButton label="Gửi hình ảnh">
+            <ImageIcon />
+          </ToolButton>
+          <ToolButton label="Đính kèm tệp">
+            <Paperclip />
+          </ToolButton>
+          <ToolButton label="Gửi danh thiếp">
+            <Contact />
+          </ToolButton>
+          <ToolButton label="Trích xuất văn bản">
+            <ScanText />
+          </ToolButton>
+          <ToolButton label="Định dạng văn bản">
+            <Pilcrow />
+          </ToolButton>
+          <ToolButton label="Tin nhắn nhanh">
+            <MessageSquareMore />
+          </ToolButton>
+          <ToolButton label="Gửi danh thiếp điện tử">
+            <CreditCard />
+          </ToolButton>
+          <ToolButton label="Thêm tùy chọn">
+            <Ellipsis />
+          </ToolButton>
         </div>
 
         <form className="zalo-composer" onSubmit={send}>
           <input
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            placeholder={`Nhập tin nhắn tới ${active.name}`}
+            placeholder={`Nhập @, tin nhắn tới `}
             aria-label="Nội dung tin nhắn"
           />
-          <ToolButton label="Biểu tượng cảm xúc">☺</ToolButton>
+          <ToolButton label="Biểu tượng cảm xúc">
+            <Smile />
+          </ToolButton>
           <button
             className="zalo-send"
-            type="submit"
-            disabled={!message.trim()}
+            type={message.trim() ? 'submit' : 'button'}
+            aria-label={message.trim() ? 'Gửi tin nhắn' : 'Gửi lượt thích'}
+            title={message.trim() ? 'Gửi tin nhắn' : 'Gửi lượt thích'}
           >
-            Gửi
+            {message.trim() ? <SendHorizontal /> : <ThumbsUp />}
           </button>
         </form>
       </section>

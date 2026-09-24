@@ -1212,6 +1212,7 @@ button {
 }
 
 .zalo-rail-primary,
+.zalo-rail-middle,
 .zalo-rail-secondary {
   width: 100%;
   display: grid;
@@ -1219,8 +1220,12 @@ button {
   margin-top: 28px;
 }
 
-.zalo-rail-secondary {
+.zalo-rail-middle {
   margin-top: auto;
+}
+
+.zalo-rail-secondary {
+  margin-top: 8px;
 }
 
 .zalo-tool {
@@ -1241,6 +1246,12 @@ button {
   border-radius: 0;
   color: #fff;
   font-size: 24px;
+}
+
+.zalo-rail .zalo-tool > svg {
+  width: 27px;
+  height: 27px;
+  stroke-width: 1.6;
 }
 
 .zalo-tool:hover,
@@ -1710,4 +1721,35 @@ button {
   height: 12px;
   padding: 1px;
   stroke-width: 1.5;
+}
+
+.zalo-composer-tools .zalo-tool,
+.zalo-composer .zalo-tool,
+.zalo-send {
+  color: #10264a;
+}
+
+.zalo-composer-tools .zalo-tool > svg,
+.zalo-composer .zalo-tool > svg,
+.zalo-send > svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.6;
+}
+
+.zalo-composer-tools .zalo-tool {
+  width: 38px;
+  flex: 0 0 38px;
+}
+
+.zalo-send {
+  width: 38px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: transparent;
+}
+
+.zalo-send:hover {
+  background: #edf1f6;
 }
