@@ -4,6 +4,8 @@ import { authenticate } from '../middlewares/authenticate.middleware.js'
 import { asyncHandler } from '../utils/async-handler.js'
 import { updateProfileValidator } from '../dtos/update-profile.dto.js'
 import { validateBody } from '../middlewares/validate.middleware.js'
+import { getUserValidator } from '../dtos/get-user.dto.js'
+import { validateParams } from '../middlewares/validate-params.js'
 
 const userRouter = Router()
 
@@ -18,6 +20,13 @@ userRouter.patch(
   authenticate,
   validateBody(updateProfileValidator),
   asyncHandler(userController.updateMe.bind(userController)),
+)
+
+userRouter.get(
+  '/:userId',
+  authenticate,
+  validateParams(getUserValidator),
+  asyncHandler(userController.getUser.bind(userController)),
 )
 
 export default userRouter

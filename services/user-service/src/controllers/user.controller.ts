@@ -4,6 +4,16 @@ import { userService } from '../config/container.js'
 import type { UpdateProfileDto } from '../dtos/update-profile.dto.js'
 
 class UserController {
+  async getUser(req: Request, res: Response): Promise<void> {
+    const profile = await userService.getUserProfile(Number(req.params.userId))
+
+    res.status(200).json({
+      success: true,
+      message: 'User profile retrieved successfully',
+      data: profile,
+    })
+  }
+
   async getMe(req: Request, res: Response): Promise<void> {
     if (!req.auth) {
       throw new AppError(
