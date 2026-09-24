@@ -1753,3 +1753,11 @@ button {
 .zalo-send:hover {
   background: #edf1f6;
 }
+
+.zalo-composer-tools {
+  overflow-x: auto;
+}
+
+.zalo-send.like {
+  color: #f3a51f;
+}

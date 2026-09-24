@@ -301,14 +301,14 @@ export function ChatScreen({
           <input
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            placeholder={`Nhập @, tin nhắn tới `}
+            placeholder={`Nhập @, tin nhắn tới ${active.name}`}
             aria-label="Nội dung tin nhắn"
           />
           <ToolButton label="Biểu tượng cảm xúc">
             <Smile />
           </ToolButton>
           <button
-            className="zalo-send"
+            className={message.trim() ? 'zalo-send has-message' : 'zalo-send like'}
             type={message.trim() ? 'submit' : 'button'}
             aria-label={message.trim() ? 'Gửi tin nhắn' : 'Gửi lượt thích'}
             title={message.trim() ? 'Gửi tin nhắn' : 'Gửi lượt thích'}
