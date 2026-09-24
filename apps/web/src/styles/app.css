@@ -984,3 +984,684 @@ button {
     display: none;
   }
 }
+
+.profile-avatar-button {
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.profile-avatar-button img,
+.profile-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #11182780;
+  backdrop-filter: blur(2px);
+}
+
+.profile-modal {
+  width: min(100%, 560px);
+  max-height: min(860px, calc(100vh - 40px));
+  overflow-y: auto;
+  border-radius: 18px;
+  background: #fff;
+  color: #101d38;
+  box-shadow: 0 28px 80px #1118274d;
+}
+
+.profile-modal-header {
+  height: 72px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-modal-header h2 {
+  margin: 0;
+  font-size: 23px;
+}
+
+.profile-modal-header button {
+  border: 0;
+  background: none;
+  color: #10203f;
+  font-size: 42px;
+  font-weight: 200;
+  line-height: 1;
+}
+
+.profile-cover {
+  height: 220px;
+  background:
+    linear-gradient(135deg, #eef5ff99, #dce9cf66),
+    radial-gradient(circle at 20% 40%, #d6e7f6 0 8%, transparent 9%),
+    linear-gradient(120deg, #dceaff, #c9d8aa 45%, #f3dfad);
+}
+
+.profile-summary {
+  position: relative;
+  min-height: 112px;
+  padding: 32px 28px 18px 170px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-avatar-large {
+  position: absolute;
+  top: -45px;
+  left: 28px;
+  width: 122px;
+  height: 122px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #526fe8;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 42px;
+  font-weight: 700;
+  box-shadow: 0 4px 14px #11182726;
+}
+
+.profile-summary h3 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.profile-edit-button {
+  border: 0;
+  background: none;
+  color: #10203f;
+  font-size: 23px;
+}
+
+.profile-actions {
+  padding: 0 28px 24px;
+}
+
+.profile-actions button {
+  width: 100%;
+  height: 46px;
+  border: 0;
+  border-radius: 8px;
+  background: #e7f0ff;
+  color: #1556ad;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.profile-section {
+  padding: 26px 28px;
+  border-top: 10px solid #f0f1f4;
+}
+
+.profile-section h3 {
+  margin: 0 0 22px;
+  font-size: 21px;
+}
+
+.profile-section dl {
+  margin: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.profile-section dl div {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 18px;
+}
+
+.profile-section dt {
+  color: #65728c;
+}
+
+.profile-section dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-media {
+  min-height: 180px;
+}
+
+.profile-media p {
+  margin: 62px 0;
+  color: #65728c;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .profile-modal-backdrop {
+    padding: 0;
+  }
+
+  .profile-modal {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .profile-cover {
+    height: 190px;
+  }
+
+  .profile-summary {
+    padding-left: 140px;
+  }
+
+  .profile-avatar-large {
+    left: 20px;
+    width: 104px;
+    height: 104px;
+  }
+}
+
+/* Zalo-inspired chat workspace */
+.zalo-layout {
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 72px 370px minmax(0, 1fr);
+  overflow: hidden;
+  background: #fff;
+  color: #17243d;
+}
+
+.zalo-rail {
+  z-index: 2;
+  padding: 22px 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #0868db;
+  color: #fff;
+}
+
+.zalo-self-avatar {
+  width: 48px;
+  height: 48px;
+  border: 2px solid #fff9;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #8b9dff, #9b71d4);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.zalo-self-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.zalo-rail-primary,
+.zalo-rail-secondary {
+  width: 100%;
+  display: grid;
+  gap: 4px;
+  margin-top: 28px;
+}
+
+.zalo-rail-secondary {
+  margin-top: auto;
+}
+
+.zalo-tool {
+  min-width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+}
+
+.zalo-rail .zalo-tool {
+  width: 100%;
+  height: 54px;
+  border-radius: 0;
+  color: #fff;
+  font-size: 24px;
+}
+
+.zalo-tool:hover,
+.zalo-rail .zalo-tool.active {
+  background: #ffffff1f;
+}
+
+.zalo-conversations {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #dfe3e8;
+  background: #fff;
+}
+
+.zalo-search-row {
+  height: 78px;
+  padding: 18px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zalo-search-box {
+  min-width: 0;
+  flex: 1;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #f0f2f5;
+  color: #526078;
+}
+
+.zalo-search-box span {
+  font-size: 23px;
+  line-height: 1;
+}
+
+.zalo-search-box input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #17243d;
+  font-size: 14px;
+}
+
+.zalo-search-row > .zalo-tool {
+  flex: 0 0 38px;
+  color: #152947;
+  font-size: 17px;
+}
+
+.zalo-filter-row {
+  height: 54px;
+  padding: 0 14px;
+  border-bottom: 1px solid #e1e5ea;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zalo-filter-tabs {
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+}
+
+.zalo-filter-tabs button,
+.zalo-sort,
+.zalo-more {
+  border: 0;
+  background: none;
+  color: #5c687d;
+  font-weight: 600;
+}
+
+.zalo-filter-tabs button {
+  position: relative;
+  padding: 0;
+}
+
+.zalo-filter-tabs button.active {
+  color: #0868db;
+}
+
+.zalo-filter-tabs button.active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: #0868db;
+}
+
+.zalo-sort {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+.zalo-more {
+  padding: 8px 2px;
+  letter-spacing: 1px;
+}
+
+.zalo-conversation-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.zalo-conversation {
+  width: 100%;
+  height: 86px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  color: #17243d;
+  text-align: left;
+}
+
+.zalo-conversation:hover {
+  background: #f2f5f8;
+}
+
+.zalo-conversation.active {
+  background: #e4f0ff;
+}
+
+.zalo-avatar {
+  width: 50px;
+  height: 50px;
+  flex: 0 0 50px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.zalo-conversation-copy {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 7px;
+}
+
+.zalo-conversation-topline,
+.zalo-conversation-preview {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zalo-conversation-topline strong {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.zalo-conversation-topline time {
+  color: #7b879a;
+  font-size: 11px;
+}
+
+.zalo-conversation-preview > span {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #66738a;
+  font-size: 13px;
+}
+
+.zalo-conversation-preview b {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #e5484d;
+  color: #fff;
+  font-size: 10px;
+}
+
+.zalo-empty-list {
+  padding: 48px 20px;
+  color: #7d8899;
+  text-align: center;
+  font-size: 13px;
+}
+
+.zalo-chat-panel {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 78px minmax(0, 1fr) 52px 64px;
+  background: #f3f4f7;
+}
+
+.zalo-chat-header {
+  padding: 0 22px;
+  border-bottom: 1px solid #dfe3e8;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+}
+
+.zalo-chat-header .zalo-avatar {
+  width: 48px;
+  height: 48px;
+  flex-basis: 48px;
+}
+
+.zalo-contact-copy {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.zalo-contact-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 17px;
+}
+
+.zalo-contact-copy small {
+  color: #68768b;
+  font-size: 12px;
+}
+
+.zalo-contact-copy i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #27b85a;
+}
+
+.zalo-header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  color: #173252;
+}
+
+.zalo-header-actions .zalo-tool:hover,
+.zalo-composer-tools .zalo-tool:hover,
+.zalo-composer .zalo-tool:hover {
+  background: #edf1f6;
+}
+
+.zalo-messages {
+  min-height: 0;
+  padding: 24px;
+  overflow-y: auto;
+  background:
+    linear-gradient(#e8ebf080 1px, transparent 1px),
+    linear-gradient(90deg, #e8ebf080 1px, transparent 1px),
+    #f0f2f5;
+  background-size: 32px 32px;
+}
+
+.zalo-day-label {
+  width: max-content;
+  margin: 0 auto 26px;
+  padding: 5px 18px;
+  border-radius: 14px;
+  background: #9da4afcc;
+  color: #fff;
+  font-size: 11px;
+}
+
+.zalo-message-row {
+  margin: 12px 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+}
+
+.zalo-message-row.mine {
+  justify-content: flex-end;
+}
+
+.zalo-avatar.message-avatar {
+  width: 34px;
+  height: 34px;
+  flex-basis: 34px;
+  font-size: 11px;
+}
+
+.zalo-message-bubble {
+  max-width: min(560px, 72%);
+  padding: 10px 13px 8px;
+  border: 1px solid #d9dde3;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 1px 2px #17243d14;
+}
+
+.zalo-message-row.mine .zalo-message-bubble {
+  border-color: #bdd8f2;
+  background: #dceeff;
+}
+
+.zalo-message-bubble p {
+  margin: 0 0 5px;
+  color: #1c2e49;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.zalo-message-bubble time {
+  display: block;
+  color: #728097;
+  font-size: 10px;
+}
+
+.zalo-message-row.mine time {
+  text-align: right;
+}
+
+.zalo-composer-tools {
+  padding: 6px 14px;
+  border-top: 1px solid #dfe3e8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #153252;
+}
+
+.zalo-composer-tools .zalo-tool {
+  font-size: 19px;
+}
+
+.zalo-composer {
+  padding: 8px 14px;
+  border-top: 1px solid #edf0f3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+}
+
+.zalo-composer input {
+  min-width: 0;
+  flex: 1;
+  height: 42px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #17243d;
+  font-size: 14px;
+}
+
+.zalo-send {
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 7px;
+  background: #0868db;
+  color: #fff;
+  font-weight: 700;
+}
+
+.zalo-send:disabled {
+  background: #e8edf3;
+  color: #9aa5b4;
+}
+
+@media (max-width: 1000px) {
+  .zalo-layout {
+    grid-template-columns: 68px 310px minmax(0, 1fr);
+  }
+
+  .zalo-search-row > .zalo-tool:last-child,
+  .zalo-sort {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .zalo-layout {
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+
+  .zalo-conversations {
+    display: none;
+  }
+
+  .zalo-chat-panel {
+    grid-column: 2;
+  }
+
+  .zalo-header-actions .zalo-tool:first-child,
+  .zalo-header-actions .zalo-tool:last-child,
+  .zalo-composer-tools .zalo-tool:nth-child(n + 4) {
+    display: none;
+  }
+
+  .zalo-messages {
+    padding: 18px 12px;
+  }
+}
