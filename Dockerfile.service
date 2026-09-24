@@ -1,20 +1,29 @@
 FROM node:24-alpine AS build
+
 WORKDIR /app
+
 COPY package*.json ./
 COPY apps/web/package.json apps/web/package.json
 COPY services/api-gateway/package.json services/api-gateway/package.json
-COPY services/auth-service/package.json services/auth-service/package.json
-COPY services/place-service/package.json services/place-service/package.json
-COPY services/review-service/package.json services/review-service/package.json
+COPY services/user-service/package.json services/user-service/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
+
 RUN npm ci
+
 COPY . .
+
 ARG WORKSPACE
+RUN npm run db:generate -w @chat-app/user-service
 RUN npm run build -w ${WORKSPACE}
 
-FROM node:24-alpine
+FROM node:24-alpine AS runtime
+
 WORKDIR /app
+ENV NODE_ENV=production
+
 COPY --from=build /app /app
+
 ARG WORKSPACE
 ENV SERVICE_WORKSPACE=${WORKSPACE}
-CMD npm run start -w ${SERVICE_WORKSPACE}
+
+CMD ["sh", "-c", "npm run start -w ${SERVICE_WORKSPACE}"]
