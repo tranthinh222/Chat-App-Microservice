@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.10.0",
   "engineVersion": "0edf323efd1d98336f3f0a68684b56f689b900d3",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nenum FriendshipStatus {\n  PENDING\n  ACCEPTED\n}\n\nmodel Friendship {\n  id            Int              @id @default(autoincrement())\n  userLowId     Int              @map(\"user_low_id\")\n  userHighId    Int              @map(\"user_high_id\")\n  requestedById Int              @map(\"requested_by_id\")\n  status        FriendshipStatus @default(PENDING)\n  acceptedAt    DateTime?        @map(\"accepted_at\")\n  createdAt     DateTime         @default(now()) @map(\"created_at\")\n  updatedAt     DateTime         @updatedAt @map(\"updated_at\")\n\n  @@unique([userLowId, userHighId])\n  @@index([userLowId, status])\n  @@index([userHighId, status])\n  @@index([requestedById, status])\n  @@map(\"friendships\")\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -32,10 +32,10 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Friendship\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"userLowId\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"user_low_id\"},{\"name\":\"userHighId\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"user_high_id\"},{\"name\":\"requestedById\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"requested_by_id\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"FriendshipStatus\"},{\"name\":\"acceptedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"accepted_at\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"friendships\",\"schema\":null}},\"enums\":{},\"types\":{}}")
 config.parameterizationSchema = {
-  strings: JSON.parse("[]"),
-  graph: "AAAA"
+  strings: JSON.parse("[\"where\",\"Friendship.findUnique\",\"Friendship.findUniqueOrThrow\",\"orderBy\",\"cursor\",\"Friendship.findFirst\",\"Friendship.findFirstOrThrow\",\"Friendship.findMany\",\"data\",\"Friendship.createOne\",\"Friendship.createMany\",\"Friendship.createManyAndReturn\",\"Friendship.updateOne\",\"Friendship.updateMany\",\"Friendship.updateManyAndReturn\",\"create\",\"update\",\"Friendship.upsertOne\",\"Friendship.deleteOne\",\"Friendship.deleteMany\",\"having\",\"_count\",\"_avg\",\"_sum\",\"_min\",\"_max\",\"Friendship.groupBy\",\"Friendship.aggregate\",\"AND\",\"OR\",\"NOT\",\"id\",\"userLowId\",\"userHighId\",\"requestedById\",\"FriendshipStatus\",\"status\",\"acceptedAt\",\"createdAt\",\"updatedAt\",\"equals\",\"in\",\"notIn\",\"lt\",\"lte\",\"gt\",\"gte\",\"not\",\"userLowId_userHighId\",\"set\",\"increment\",\"decrement\",\"multiply\",\"divide\"]"),
+  graph: "OAsQDBwAACkAMB0AAAQAEB4AACkAMB8CAAAAASACACoAISECACoAISICACoAISQAACskIiVAACwAISZAAC0AISdAAC0AITAAAC4AIAEAAAABACABAAAAAQAgCxwAACkAMB0AAAQAEB4AACkAMB8CACoAISACACoAISECACoAISICACoAISQAACskIiVAACwAISZAAC0AISdAAC0AIQElAAAvACADAAAABAAgAwAABQAwBAAAAQAgAwAAAAQAIAMAAAUAMAQAAAEAIAMAAAAEACADAAAFADAEAAABACAIHwIAAAABIAIAAAABIQIAAAABIgIAAAABJAAAACQCJUAAAAABJkAAAAABJ0AAAAABAQgAAAkAIAgfAgAAAAEgAgAAAAEhAgAAAAEiAgAAAAEkAAAAJAIlQAAAAAEmQAAAAAEnQAAAAAEBCAAACwAwAQgAAAsAMAgfAgA1ACEgAgA1ACEhAgA1ACEiAgA1ACEkAAA2JCIlQAA3ACEmQAA4ACEnQAA4ACECAAAAAQAgCAAADgAgCB8CADUAISACADUAISECADUAISICADUAISQAADYkIiVAADcAISZAADgAISdAADgAIQIAAAAEACAIAAAQACACAAAABAAgCAAAEAAgAwAAAAEAIA8AAAkAIBAAAA4AIAEAAAABACABAAAABAAgBhUAADAAIBYAADEAIBcAADQAIBgAADMAIBkAADIAICUAAC8AIAscAAAaADAdAAAXABAeAAAaADAfAgAbACEgAgAbACEhAgAbACEiAgAbACEkAAAcJCIlQAAdACEmQAAeACEnQAAeACEDAAAABAAgAwAAFgAwFAAAFwAgAwAAAAQAIAMAAAUAMAQAAAEAIAscAAAaADAdAAAXABAeAAAaADAfAgAbACEgAgAbACEhAgAbACEiAgAbACEkAAAcJCIlQAAdACEmQAAeACEnQAAeACENFQAAIAAgFgAAKAAgFwAAIAAgGAAAIAAgGQAAIAAgKAIAAAABKQIAAAAEKgIAAAAEKwIAAAABLAIAAAABLQIAAAABLgIAAAABLwIAJwAhBxUAACAAIBgAACYAIBkAACYAICgAAAAkAikAAAAkCCoAAAAkCC8AACUkIgsVAAAjACAYAAAkACAZAAAkACAoQAAAAAEpQAAAAAUqQAAAAAUrQAAAAAEsQAAAAAEtQAAAAAEuQAAAAAEvQAAiACELFQAAIAAgGAAAIQAgGQAAIQAgKEAAAAABKUAAAAAEKkAAAAAEK0AAAAABLEAAAAABLUAAAAABLkAAAAABL0AAHwAhCxUAACAAIBgAACEAIBkAACEAIChAAAAAASlAAAAABCpAAAAABCtAAAAAASxAAAAAAS1AAAAAAS5AAAAAAS9AAB8AIQgoAgAAAAEpAgAAAAQqAgAAAAQrAgAAAAEsAgAAAAEtAgAAAAEuAgAAAAEvAgAgACEIKEAAAAABKUAAAAAEKkAAAAAEK0AAAAABLEAAAAABLUAAAAABLkAAAAABL0AAIQAhCxUAACMAIBgAACQAIBkAACQAIChAAAAAASlAAAAABSpAAAAABStAAAAAASxAAAAAAS1AAAAAAS5AAAAAAS9AACIAIQgoAgAAAAEpAgAAAAUqAgAAAAUrAgAAAAEsAgAAAAEtAgAAAAEuAgAAAAEvAgAjACEIKEAAAAABKUAAAAAFKkAAAAAFK0AAAAABLEAAAAABLUAAAAABLkAAAAABL0AAJAAhBxUAACAAIBgAACYAIBkAACYAICgAAAAkAikAAAAkCCoAAAAkCC8AACUkIgQoAAAAJAIpAAAAJAgqAAAAJAgvAAAmJCINFQAAIAAgFgAAKAAgFwAAIAAgGAAAIAAgGQAAIAAgKAIAAAABKQIAAAAEKgIAAAAEKwIAAAABLAIAAAABLQIAAAABLgIAAAABLwIAJwAhCCgIAAAAASkIAAAABCoIAAAABCsIAAAAASwIAAAAAS0IAAAAAS4IAAAAAS8IACgAIQscAAApADAdAAAEABAeAAApADAfAgAqACEgAgAqACEhAgAqACEiAgAqACEkAAArJCIlQAAsACEmQAAtACEnQAAtACEIKAIAAAABKQIAAAAEKgIAAAAEKwIAAAABLAIAAAABLQIAAAABLgIAAAABLwIAIAAhBCgAAAAkAikAAAAkCCoAAAAkCC8AACYkIggoQAAAAAEpQAAAAAUqQAAAAAUrQAAAAAEsQAAAAAEtQAAAAAEuQAAAAAEvQAAkACEIKEAAAAABKUAAAAAEKkAAAAAEK0AAAAABLEAAAAABLUAAAAABLkAAAAABL0AAIQAhAiACAAAAASECAAAAAQAAAAAAAAUxAgAAAAEyAgAAAAEzAgAAAAE0AgAAAAE1AgAAAAEBMQAAACQCATFAAAAAAQExQAAAAAEAAAAABRUABhYABxcACBgACRkACgAAAAAABRUABhYABxcACBgACRkACgECAQIDAQUGAQYHAQcIAQkKAQoMAgsNAwwPAQ0RAg4SBBETARIUARMVAhoYBRsZCw"
 }
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
@@ -70,8 +70,8 @@ export interface PrismaClientConstructor {
    * const prisma = new PrismaClient({
    *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
    * })
-   * // Fetch zero or more Users
-   * const users = await prisma.user.findMany()
+   * // Fetch zero or more Friendships
+   * const friendships = await prisma.friendship.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -94,8 +94,8 @@ export interface PrismaClientConstructor {
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Friendships
+ * const friendships = await prisma.friendship.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -188,7 +188,15 @@ export interface PrismaClient<
     extArgs: ExtArgs
   }>>
 
-    
+      /**
+   * `prisma.friendship`: Exposes CRUD operations for the **Friendship** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Friendships
+    * const friendships = await prisma.friendship.findMany()
+    * ```
+    */
+  get friendship(): Prisma.FriendshipDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

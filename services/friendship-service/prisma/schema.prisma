@@ -6,3 +6,25 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+model Friendship {
+  id            Int              @id @default(autoincrement())
+  userLowId     Int              @map("user_low_id")
+  userHighId    Int              @map("user_high_id")
+  requestedById Int              @map("requested_by_id")
+  status        FriendshipStatus @default(PENDING)
+  acceptedAt    DateTime?        @map("accepted_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@unique([userLowId, userHighId])
+  @@index([userLowId, status])
+  @@index([userHighId, status])
+  @@index([requestedById, status])
+  @@map("friendships")
+}
