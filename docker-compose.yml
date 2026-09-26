@@ -14,6 +14,23 @@ services:
       retries: 10
     restart: unless-stopped
 
+  friendship-postgres:
+    image: ${POSTGRES_IMAGE}
+    environment:
+      POSTGRES_DB: ${FRIENDSHIP_POSTGRES_DB}
+      POSTGRES_USER: ${FRIENDSHIP_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${FRIENDSHIP_POSTGRES_PASSWORD}
+    ports:
+      - "${FRIENDSHIP_POSTGRES_PORT}:5432"
+    volumes:
+      - friendship_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${FRIENDSHIP_POSTGRES_USER} -d ${FRIENDSHIP_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   auth-service:
     build:
       context: .
@@ -35,6 +52,26 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:${USER_SERVICE_PORT}/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  friendship-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        WORKSPACE: "@chat-app/friendship-service"
+    environment:
+      PORT: ${FRIENDSHIP_SERVICE_PORT}
+      DATABASE_URL: ${FRIENDSHIP_DATABASE_URL}
+    depends_on:
+      friendship-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:${FRIENDSHIP_SERVICE_PORT}/health/ready"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -77,3 +114,4 @@ services:
 
 volumes:
   postgres_data:
+  friendship_postgres_data:
