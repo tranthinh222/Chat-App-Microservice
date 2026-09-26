@@ -67,6 +67,7 @@ services:
     environment:
       PORT: ${FRIENDSHIP_SERVICE_PORT}
       DATABASE_URL: ${FRIENDSHIP_DATABASE_URL}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
     depends_on:
       friendship-postgres:
         condition: service_healthy

@@ -23,4 +23,5 @@ function getRequiredEnvironmentVariable(name: string): string {
 export const env = {
   port: getPort(),
   databaseUrl: getRequiredEnvironmentVariable('DATABASE_URL'),
+  jwtAccessSecret: getRequiredEnvironmentVariable('JWT_ACCESS_SECRET'),
 }

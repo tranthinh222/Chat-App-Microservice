@@ -1,5 +1,6 @@
 import express from 'express'
 import { prisma } from './config/prisma.js'
+import { authenticate } from './middlewares/authenticate.middleware.js'
 import { errorMiddleware } from './middlewares/error.middleware.js'
 
 const app = express()
@@ -34,6 +35,8 @@ app.get('/health/ready', async (_req, res) => {
     })
   }
 })
+
+app.use('/api/v1/friendships', authenticate)
 
 app.use((_req, res) => {
   res.status(404).json({
