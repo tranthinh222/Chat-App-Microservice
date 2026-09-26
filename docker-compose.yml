@@ -1,6 +1,15 @@
+x-postgres-defaults: &postgres-defaults
+  image: ${POSTGRES_IMAGE}
+  restart: unless-stopped
+
+x-postgres-healthcheck: &postgres-healthcheck
+  interval: 5s
+  timeout: 5s
+  retries: 10
+
 services:
-  postgres:
-    image: ${POSTGRES_IMAGE}
+  user-postgres:
+    <<: *postgres-defaults
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -8,14 +17,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
+      <<: *postgres-healthcheck
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
 
   friendship-postgres:
-    image: ${POSTGRES_IMAGE}
+    <<: *postgres-defaults
     environment:
       POSTGRES_DB: ${FRIENDSHIP_POSTGRES_DB}
       POSTGRES_USER: ${FRIENDSHIP_POSTGRES_USER}
@@ -25,11 +31,8 @@ services:
     volumes:
       - friendship_postgres_data:/var/lib/postgresql/data
     healthcheck:
+      <<: *postgres-healthcheck
       test: ["CMD-SHELL", "pg_isready -U ${FRIENDSHIP_POSTGRES_USER} -d ${FRIENDSHIP_POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
 
   auth-service:
     build:
@@ -48,7 +51,7 @@ services:
       - -c
       - npm run db:migrate -w @chat-app/user-service && npm run start -w @chat-app/user-service
     depends_on:
-      postgres:
+      user-postgres:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:${USER_SERVICE_PORT}/health/ready"]
