@@ -5,6 +5,20 @@ import type { UpdateProfileDto } from '../dtos/update-profile.dto.js'
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
+  async findPublicUserByPhone(phone: string) {
+    const user = await this.userRepository.findByPhone(phone)
+
+    if (!user || user.status !== 'ACTIVE' || user.isBanned) {
+      throw new AppError(404, 'USER_NOT_FOUND', 'User not found')
+    }
+
+    return {
+      id: user.id,
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+    }
+  }
+
   async getUserProfile(userId: number) {
     const user = await this.userRepository.findById(userId)
 

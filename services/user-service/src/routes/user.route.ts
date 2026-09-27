@@ -6,8 +6,17 @@ import { updateProfileValidator } from '../dtos/update-profile.dto.js'
 import { validateBody } from '../middlewares/validate.middleware.js'
 import { getUserValidator } from '../dtos/get-user.dto.js'
 import { validateParams } from '../middlewares/validate-params.js'
+import { searchUserValidator } from '../dtos/search-user.dto.js'
+import { validateQuery } from '../middlewares/validate-query.js'
 
 const userRouter = Router()
+
+userRouter.get(
+  '/search',
+  authenticate,
+  validateQuery(searchUserValidator),
+  asyncHandler(userController.searchUser.bind(userController)),
+)
 
 userRouter.get(
   '/me',

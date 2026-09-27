@@ -1,9 +1,21 @@
 import type { Request, Response } from 'express'
 import { AppError } from '../errors/app-errors.js'
 import { userService } from '../config/container.js'
+import type { SearchUserDto } from '../dtos/search-user.dto.js'
 import type { UpdateProfileDto } from '../dtos/update-profile.dto.js'
 
 class UserController {
+  async searchUser(_req: Request, res: Response): Promise<void> {
+    const { phone } = res.locals.validatedQuery as SearchUserDto
+    const user = await userService.findPublicUserByPhone(phone)
+
+    res.status(200).json({
+      success: true,
+      message: 'User found successfully',
+      data: user,
+    })
+  }
+
   async getUser(req: Request, res: Response): Promise<void> {
     const profile = await userService.getUserProfile(Number(req.params.userId))
 
