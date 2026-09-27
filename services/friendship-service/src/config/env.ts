@@ -20,8 +20,26 @@ function getRequiredEnvironmentVariable(name: string): string {
   return value
 }
 
+function getPositiveIntegerEnvironmentVariable(
+  name: string,
+  fallback: number,
+): number {
+  const value = Number(process.env[name] ?? fallback)
+
+  if (!Number.isSafeInteger(value) || value <= 0) {
+    throw new Error(`Environment variable ${name} must be a positive integer`)
+  }
+
+  return value
+}
+
 export const env = {
   port: getPort(),
   databaseUrl: getRequiredEnvironmentVariable('DATABASE_URL'),
   jwtAccessSecret: getRequiredEnvironmentVariable('JWT_ACCESS_SECRET'),
+  userServiceUrl: getRequiredEnvironmentVariable('USER_SERVICE_URL'),
+  userServiceRequestTimeoutMs: getPositiveIntegerEnvironmentVariable(
+    'USER_SERVICE_REQUEST_TIMEOUT_MS',
+    3000,
+  ),
 }
