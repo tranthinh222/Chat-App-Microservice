@@ -9,6 +9,7 @@ declare global {
   namespace Express {
     interface Request {
       auth?: VerifiedAccessToken
+      accessToken?: string
     }
   }
 }
@@ -46,6 +47,7 @@ export function authenticate(
 
   try {
     req.auth = tokenService.verifyAccessToken(token)
+    req.accessToken = token
     next()
   } catch (error) {
     next(error)
