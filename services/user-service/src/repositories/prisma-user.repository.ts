@@ -15,6 +15,17 @@ export class PrismaUserRepository implements UserRepository {
     })
   }
 
+  async findActiveByIds(ids: number[]) {
+    return this.database.user.findMany({
+      where: {
+        id: { in: ids },
+        status: 'ACTIVE',
+        isBanned: false,
+      },
+      orderBy: { id: 'asc' },
+    })
+  }
+
   async findByPhone(phone: string) {
     return this.database.user.findUnique({
       where: { phone },

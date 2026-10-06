@@ -18,6 +18,7 @@ export type UpdateUserData = {
 
 export interface UserRepository {
   findById(id: number): Promise<User | null>
+  findActiveByIds(ids: number[]): Promise<User[]>
   findByPhone(phone: string): Promise<User | null>
   findByEmail(email: string): Promise<User | null>
   create(data: CreateUserData): Promise<User>

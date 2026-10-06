@@ -19,6 +19,16 @@ export class UserService {
     }
   }
 
+  async findPublicUsersByIds(userIds: number[]) {
+    const users = await this.userRepository.findActiveByIds(userIds)
+
+    return users.map((user) => ({
+      id: user.id,
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+    }))
+  }
+
   async getUserProfile(userId: number) {
     const user = await this.userRepository.findById(userId)
 
@@ -84,4 +94,3 @@ export class UserService {
     }
   }
 }
-

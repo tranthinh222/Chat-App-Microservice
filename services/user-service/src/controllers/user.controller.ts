@@ -3,8 +3,22 @@ import { AppError } from '../errors/app-errors.js'
 import { userService } from '../config/container.js'
 import type { SearchUserDto } from '../dtos/search-user.dto.js'
 import type { UpdateProfileDto } from '../dtos/update-profile.dto.js'
+import type { GetUsersBatchDto } from '../dtos/get-users-batch.dto.js'
 
 class UserController {
+  async getUsersBatch(
+    req: Request<object, object, GetUsersBatchDto>,
+    res: Response,
+  ): Promise<void> {
+    const users = await userService.findPublicUsersByIds(req.body.userIds)
+
+    res.status(200).json({
+      success: true,
+      message: 'User profiles retrieved successfully',
+      data: users,
+    })
+  }
+
   async searchUser(_req: Request, res: Response): Promise<void> {
     const { phone } = res.locals.validatedQuery as SearchUserDto
     const user = await userService.findPublicUserByPhone(phone)

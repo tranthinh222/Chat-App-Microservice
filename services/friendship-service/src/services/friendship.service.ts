@@ -1,6 +1,9 @@
 import { Prisma, type Friendship } from '../generated/prisma/client.js'
 import { AppError } from '../errors/app-error.js'
-import type { UserServiceClient } from '../clients/user-service.client.js'
+import type {
+  PublicUser,
+  UserServiceClient,
+} from '../clients/user-service.client.js'
 import type { FriendshipRepository } from '../repositories/friendship.repository.js'
 
 export class FriendshipService {
@@ -124,6 +127,96 @@ export class FriendshipService {
     }
   }
 
+  async getIncomingRequests(userId: number, accessToken: string) {
+    const requests =
+      await this.friendshipRepository.findIncomingRequests(userId)
+    return this.hydrateRequests(requests, userId, accessToken)
+  }
+
+  async getOutgoingRequests(userId: number, accessToken: string) {
+    const requests =
+      await this.friendshipRepository.findOutgoingRequests(userId)
+    return this.hydrateRequests(requests, userId, accessToken)
+  }
+
+  async getFriends(userId: number, accessToken: string) {
+    const friendships = await this.friendshipRepository.findFriends(userId)
+    const profiles = await this.getProfilesByOtherUser(
+      friendships,
+      userId,
+      accessToken,
+    )
+
+    return friendships.map((friendship) => {
+      const friendId = this.getOtherUserId(friendship, userId)
+
+      return {
+        friendshipId: friendship.id,
+        user: profiles.get(friendId) ?? null,
+        friendsSince: friendship.acceptedAt,
+      }
+    })
+  }
+
+  async removeFriend(userId: number, friendId: number): Promise<void> {
+    if (userId === friendId) {
+      throw new AppError(404, 'FRIENDSHIP_NOT_FOUND', 'Friendship not found')
+    }
+
+    const deleted = await this.friendshipRepository.deleteAcceptedByUsers(
+      Math.min(userId, friendId),
+      Math.max(userId, friendId),
+    )
+
+    if (!deleted) {
+      throw new AppError(404, 'FRIENDSHIP_NOT_FOUND', 'Friendship not found')
+    }
+  }
+
+  private async hydrateRequests(
+    requests: Friendship[],
+    userId: number,
+    accessToken: string,
+  ) {
+    const profiles = await this.getProfilesByOtherUser(
+      requests,
+      userId,
+      accessToken,
+    )
+
+    return requests.map((request) => {
+      const otherUserId = this.getOtherUserId(request, userId)
+
+      return {
+        requestId: request.id,
+        user: profiles.get(otherUserId) ?? null,
+        createdAt: request.createdAt,
+      }
+    })
+  }
+
+  private async getProfilesByOtherUser(
+    friendships: Friendship[],
+    userId: number,
+    accessToken: string,
+  ): Promise<Map<number, PublicUser>> {
+    const userIds = friendships.map((friendship) =>
+      this.getOtherUserId(friendship, userId),
+    )
+    const profiles = await this.userServiceClient.findActiveUsersByIds(
+      userIds,
+      accessToken,
+    )
+
+    return new Map(profiles.map((profile) => [profile.id, profile]))
+  }
+
+  private getOtherUserId(friendship: Friendship, userId: number): number {
+    return friendship.userLowId === userId
+      ? friendship.userHighId
+      : friendship.userLowId
+  }
+
   private async getRequestForAction(requestId: number) {
     const request = await this.friendshipRepository.findById(requestId)
 
@@ -138,10 +231,7 @@ export class FriendshipService {
     return request
   }
 
-  private ensureReceiver(
-    request: Friendship,
-    userId: number,
-  ): void {
+  private ensureReceiver(request: Friendship, userId: number): void {
     const receiverId =
       request.requestedById === request.userLowId
         ? request.userHighId
@@ -156,9 +246,7 @@ export class FriendshipService {
     }
   }
 
-  private ensurePending(
-    request: Friendship,
-  ): void {
+  private ensurePending(request: Friendship): void {
     if (request.status !== 'PENDING') {
       throw new AppError(
         409,
@@ -167,5 +255,4 @@ export class FriendshipService {
       )
     }
   }
-
 }

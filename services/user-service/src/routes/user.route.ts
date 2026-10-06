@@ -8,6 +8,7 @@ import { getUserValidator } from '../dtos/get-user.dto.js'
 import { validateParams } from '../middlewares/validate-params.js'
 import { searchUserValidator } from '../dtos/search-user.dto.js'
 import { validateQuery } from '../middlewares/validate-query.js'
+import { getUsersBatchValidator } from '../dtos/get-users-batch.dto.js'
 
 const userRouter = Router()
 
@@ -22,6 +23,13 @@ userRouter.get(
   '/me',
   authenticate,
   asyncHandler(userController.getMe.bind(userController)),
+)
+
+userRouter.post(
+  '/batch',
+  authenticate,
+  validateBody(getUsersBatchValidator),
+  asyncHandler(userController.getUsersBatch.bind(userController)),
 )
 
 userRouter.patch(

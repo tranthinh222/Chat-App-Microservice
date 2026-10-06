@@ -4,6 +4,42 @@ import type { CreateFriendRequestDto } from '../dtos/create-friend-request.dto.j
 import { AppError } from '../errors/app-error.js'
 
 class FriendshipController {
+  async getIncomingRequests(req: Request, res: Response): Promise<void> {
+    const requests = await friendshipService.getIncomingRequests(
+      this.getAuthenticatedUserId(req),
+      this.getAccessToken(req),
+    )
+
+    res.status(200).json({ success: true, data: requests })
+  }
+
+  async getOutgoingRequests(req: Request, res: Response): Promise<void> {
+    const requests = await friendshipService.getOutgoingRequests(
+      this.getAuthenticatedUserId(req),
+      this.getAccessToken(req),
+    )
+
+    res.status(200).json({ success: true, data: requests })
+  }
+
+  async getFriends(req: Request, res: Response): Promise<void> {
+    const friends = await friendshipService.getFriends(
+      this.getAuthenticatedUserId(req),
+      this.getAccessToken(req),
+    )
+
+    res.status(200).json({ success: true, data: friends })
+  }
+
+  async removeFriend(req: Request, res: Response): Promise<void> {
+    await friendshipService.removeFriend(
+      this.getAuthenticatedUserId(req),
+      Number(req.params.friendId),
+    )
+
+    res.status(204).send()
+  }
+
   async createRequest(
     req: Request<object, object, CreateFriendRequestDto>,
     res: Response,
@@ -72,6 +108,18 @@ class FriendshipController {
     }
 
     return req.auth.userId
+  }
+
+  private getAccessToken(req: { accessToken?: string }): string {
+    if (!req.accessToken) {
+      throw new AppError(
+        401,
+        'ACCESS_TOKEN_REQUIRED',
+        'Access token is required',
+      )
+    }
+
+    return req.accessToken
   }
 }
 

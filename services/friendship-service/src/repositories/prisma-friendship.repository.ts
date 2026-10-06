@@ -62,6 +62,21 @@ export class PrismaFriendshipRepository implements FriendshipRepository {
     return result.count === 1
   }
 
+  async deleteAcceptedByUsers(
+    userLowId: number,
+    userHighId: number,
+  ): Promise<boolean> {
+    const result = await this.database.friendship.deleteMany({
+      where: {
+        userLowId,
+        userHighId,
+        status: 'ACCEPTED',
+      },
+    })
+
+    return result.count === 1
+  }
+
   async findIncomingRequests(userId: number) {
     return this.database.friendship.findMany({
       where: {
@@ -70,6 +85,7 @@ export class PrismaFriendshipRepository implements FriendshipRepository {
         OR: [{ userLowId: userId }, { userHighId: userId }],
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     })
   }
 
@@ -80,6 +96,7 @@ export class PrismaFriendshipRepository implements FriendshipRepository {
         requestedById: userId,
       },
       orderBy: { createdAt: 'desc' },
+      take: 100,
     })
   }
 
@@ -90,6 +107,7 @@ export class PrismaFriendshipRepository implements FriendshipRepository {
         OR: [{ userLowId: userId }, { userHighId: userId }],
       },
       orderBy: { acceptedAt: 'desc' },
+      take: 100,
     })
   }
 }

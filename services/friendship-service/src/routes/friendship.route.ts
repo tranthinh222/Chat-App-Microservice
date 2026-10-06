@@ -5,8 +5,23 @@ import { friendRequestParamsValidator } from '../dtos/friend-request-params.dto.
 import { validateBody } from '../middlewares/validate.middleware.js'
 import { validateParams } from '../middlewares/validate-params.js'
 import { asyncHandler } from '../utils/async-handler.js'
+import { friendParamsValidator } from '../dtos/friend-params.dto.js'
 
 const friendshipRouter = Router()
+
+friendshipRouter.get(
+  '/requests/incoming',
+  asyncHandler(
+    friendshipController.getIncomingRequests.bind(friendshipController),
+  ),
+)
+
+friendshipRouter.get(
+  '/requests/outgoing',
+  asyncHandler(
+    friendshipController.getOutgoingRequests.bind(friendshipController),
+  ),
+)
 
 friendshipRouter.post(
   '/requests',
@@ -30,6 +45,17 @@ friendshipRouter.delete(
   '/requests/:requestId',
   validateParams(friendRequestParamsValidator),
   asyncHandler(friendshipController.cancelRequest.bind(friendshipController)),
+)
+
+friendshipRouter.get(
+  '/',
+  asyncHandler(friendshipController.getFriends.bind(friendshipController)),
+)
+
+friendshipRouter.delete(
+  '/:friendId',
+  validateParams(friendParamsValidator),
+  asyncHandler(friendshipController.removeFriend.bind(friendshipController)),
 )
 
 export default friendshipRouter
