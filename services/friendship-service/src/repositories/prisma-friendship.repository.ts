@@ -9,6 +9,12 @@ type FriendshipDatabase = Pick<PrismaClient, 'friendship'>
 export class PrismaFriendshipRepository implements FriendshipRepository {
   constructor(private readonly database: FriendshipDatabase) {}
 
+  async findById(id: number) {
+    return this.database.friendship.findUnique({
+      where: { id },
+    })
+  }
+
   async findByUsers(userLowId: number, userHighId: number) {
     return this.database.friendship.findUnique({
       where: {
@@ -31,19 +37,29 @@ export class PrismaFriendshipRepository implements FriendshipRepository {
   }
 
   async acceptById(id: number) {
-    return this.database.friendship.update({
-      where: { id },
+    const [friendship] = await this.database.friendship.updateManyAndReturn({
+      where: {
+        id,
+        status: 'PENDING',
+      },
       data: {
         status: 'ACCEPTED',
         acceptedAt: new Date(),
       },
     })
+
+    return friendship ?? null
   }
 
-  async deleteById(id: number): Promise<void> {
-    await this.database.friendship.delete({
-      where: { id },
+  async deleteById(id: number): Promise<boolean> {
+    const result = await this.database.friendship.deleteMany({
+      where: {
+        id,
+        status: 'PENDING',
+      },
     })
+
+    return result.count === 1
   }
 
   async findIncomingRequests(userId: number) {

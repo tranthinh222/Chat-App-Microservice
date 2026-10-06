@@ -8,7 +8,9 @@ class FriendshipController {
     req: Request<object, object, CreateFriendRequestDto>,
     res: Response,
   ): Promise<void> {
-    if (!req.auth || !req.accessToken) {
+    const userId = this.getAuthenticatedUserId(req)
+
+    if (!req.accessToken) {
       throw new AppError(
         401,
         'ACCESS_TOKEN_REQUIRED',
@@ -17,7 +19,7 @@ class FriendshipController {
     }
 
     const friendship = await friendshipService.sendFriendRequest(
-      req.auth.userId,
+      userId,
       req.body.receiverId,
       req.accessToken,
     )
@@ -27,6 +29,49 @@ class FriendshipController {
       message: 'Friend request sent successfully',
       data: friendship,
     })
+  }
+
+  async acceptRequest(req: Request, res: Response): Promise<void> {
+    const friendship = await friendshipService.acceptFriendRequest(
+      Number(req.params.requestId),
+      this.getAuthenticatedUserId(req),
+    )
+
+    res.status(200).json({
+      success: true,
+      message: 'Friend request accepted successfully',
+      data: friendship,
+    })
+  }
+
+  async rejectRequest(req: Request, res: Response): Promise<void> {
+    await friendshipService.rejectFriendRequest(
+      Number(req.params.requestId),
+      this.getAuthenticatedUserId(req),
+    )
+
+    res.status(204).send()
+  }
+
+  async cancelRequest(req: Request, res: Response): Promise<void> {
+    await friendshipService.cancelFriendRequest(
+      Number(req.params.requestId),
+      this.getAuthenticatedUserId(req),
+    )
+
+    res.status(204).send()
+  }
+
+  private getAuthenticatedUserId(req: { auth?: { userId: number } }): number {
+    if (!req.auth) {
+      throw new AppError(
+        401,
+        'ACCESS_TOKEN_REQUIRED',
+        'Access token is required',
+      )
+    }
+
+    return req.auth.userId
   }
 }
 

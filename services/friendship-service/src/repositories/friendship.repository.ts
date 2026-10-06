@@ -7,6 +7,8 @@ export type CreateFriendRequestData = {
 }
 
 export interface FriendshipRepository {
+  findById(id: number): Promise<Friendship | null>
+
   findByUsers(
     userLowId: number,
     userHighId: number,
@@ -14,9 +16,9 @@ export interface FriendshipRepository {
 
   createRequest(data: CreateFriendRequestData): Promise<Friendship>
 
-  acceptById(id: number): Promise<Friendship>
+  acceptById(id: number): Promise<Friendship | null>
 
-  deleteById(id: number): Promise<void>
+  deleteById(id: number): Promise<boolean>
 
   findIncomingRequests(userId: number): Promise<Friendship[]>
 
