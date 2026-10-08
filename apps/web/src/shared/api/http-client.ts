@@ -8,6 +8,7 @@ type ApiEnvelope<T> = {
 }
 
 type ApiErrorBody = {
+  code?: string
   message?: string
   errors?: Array<{
     field: string
@@ -16,15 +17,18 @@ type ApiErrorBody = {
 }
 
 export class ApiRequestError extends Error {
+  readonly code?: string
   readonly fieldErrors: Record<string, string>
 
   constructor(
     message: string,
     errors: ApiErrorBody['errors'] = [],
+    code?: string,
     cause?: unknown,
   ) {
     super(message, { cause })
     this.name = 'ApiRequestError'
+    this.code = code
     this.fieldErrors = Object.fromEntries(
       errors.map((error) => [error.field, error.message]),
     )
@@ -54,6 +58,7 @@ export async function apiRequest<T>(config: AxiosRequestConfig): Promise<T> {
       throw new ApiRequestError(
         body?.message ?? 'Request failed',
         body?.errors,
+        body?.code,
         error,
       )
     }
