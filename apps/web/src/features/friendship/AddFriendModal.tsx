@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { FormEvent } from 'react'
 import {
   Check,
   Clock3,
@@ -9,13 +10,11 @@ import {
 } from 'lucide-react'
 import { ApiRequestError } from '../../shared/api/http-client'
 import {
-  getFriends,
-  getIncomingRequests,
-  getOutgoingRequests,
+  getFriendshipOverview,
   searchUserByPhone,
   sendFriendRequest,
 } from './friendship-api'
-import type { PublicUser } from './friendship-types'
+import type { FriendshipOverview, PublicUser } from './friendship-types'
 
 type RelationshipStatus =
   | 'none'
@@ -57,6 +56,8 @@ export function AddFriendModal({
   const [searching, setSearching] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+  const overviewRequest = useRef<Promise<FriendshipOverview> | null>(null)
+  const searchSequence = useRef(0)
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -64,36 +65,45 @@ export function AddFriendModal({
     }
 
     document.addEventListener('keydown', closeOnEscape)
-    return () => document.removeEventListener('keydown', closeOnEscape)
+    return () => {
+      searchSequence.current += 1
+      document.removeEventListener('keydown', closeOnEscape)
+    }
   }, [onClose])
+
+  const loadOverview = (refresh = false) => {
+    if (refresh || !overviewRequest.current) {
+      overviewRequest.current = getFriendshipOverview().catch((error) => {
+        overviewRequest.current = null
+        throw error
+      })
+    }
+
+    return overviewRequest.current
+  }
 
   const findRelationshipStatus = async (
     foundUser: PublicUser,
+    overview: FriendshipOverview,
   ): Promise<RelationshipStatus> => {
     if (foundUser.id === currentUserId) return 'self'
 
-    const [incoming, outgoing, friends] = await Promise.all([
-      getIncomingRequests(),
-      getOutgoingRequests(),
-      getFriends(),
-    ])
-
-    if (friends.some((item) => item.user?.id === foundUser.id)) {
+    if (overview.friends.some((item) => item.user?.id === foundUser.id)) {
       return 'friends'
     }
 
-    if (incoming.some((item) => item.user?.id === foundUser.id)) {
+    if (overview.incoming.some((item) => item.user?.id === foundUser.id)) {
       return 'incoming'
     }
 
-    if (outgoing.some((item) => item.user?.id === foundUser.id)) {
+    if (overview.outgoing.some((item) => item.user?.id === foundUser.id)) {
       return 'outgoing'
     }
 
     return 'none'
   }
 
-  const search = async (event: React.FormEvent<HTMLFormElement>) => {
+  const search = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const normalizedPhone = phone.trim()
@@ -107,18 +117,28 @@ export function AddFriendModal({
     setError('')
     setUser(null)
     setStatus('none')
+    const sequence = ++searchSequence.current
 
     try {
-      const foundUser = await searchUserByPhone(normalizedPhone)
-      const relationshipStatus = await findRelationshipStatus(foundUser)
+      const [foundUser, overview] = await Promise.all([
+        searchUserByPhone(normalizedPhone),
+        loadOverview(),
+      ])
+      if (sequence !== searchSequence.current) return
+
+      const relationshipStatus = await findRelationshipStatus(
+        foundUser,
+        overview,
+      )
       setUser(foundUser)
       setStatus(relationshipStatus)
     } catch (requestError) {
+      if (sequence !== searchSequence.current) return
       setError(
         getErrorMessage(requestError, 'Không thể tìm người dùng lúc này.'),
       )
     } finally {
-      setSearching(false)
+      if (sequence === searchSequence.current) setSearching(false)
     }
   }
 
@@ -135,10 +155,11 @@ export function AddFriendModal({
       if (
         requestError instanceof ApiRequestError &&
         (requestError.code === 'ALREADY_FRIENDS' ||
-          requestError.code === 'FRIEND_REQUEST_ALREADY_EXISTS')
+        requestError.code === 'FRIEND_REQUEST_ALREADY_EXISTS')
       ) {
         try {
-          setStatus(await findRelationshipStatus(user))
+          const overview = await loadOverview(true)
+          setStatus(await findRelationshipStatus(user, overview))
         } catch {
           setError(getErrorMessage(requestError, 'Không thể gửi lời mời.'))
         }
@@ -151,9 +172,11 @@ export function AddFriendModal({
   }
 
   const updatePhone = (value: string) => {
+    searchSequence.current += 1
     setPhone(value)
     setUser(null)
     setStatus('none')
+    setSearching(false)
     setError('')
   }
 
@@ -197,8 +220,12 @@ export function AddFriendModal({
               inputMode="tel"
               autoComplete="tel"
               autoFocus
+              disabled={sending}
             />
-            <button type="submit" disabled={searching || !phone.trim()}>
+            <button
+              type="submit"
+              disabled={searching || sending || !phone.trim()}
+            >
               {searching ? 'Đang tìm…' : 'Tìm kiếm'}
             </button>
           </div>

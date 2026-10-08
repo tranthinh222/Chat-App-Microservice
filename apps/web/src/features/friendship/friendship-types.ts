@@ -28,3 +28,9 @@ export type Friend = {
   user: PublicUser | null
   friendsSince: string | null
 }
+
+export type FriendshipOverview = {
+  incoming: FriendRequest[]
+  outgoing: FriendRequest[]
+  friends: Friend[]
+}

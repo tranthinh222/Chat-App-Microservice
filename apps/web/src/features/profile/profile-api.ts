@@ -1,5 +1,4 @@
-import { apiRequest } from '../../shared/api/http-client'
-import { readSession } from '../../shared/lib/auth-storage'
+import { authenticatedApiRequest } from '../../shared/api/http-client'
 import type { User } from '../../shared/types/user'
 
 export type UserProfile = Pick<
@@ -10,17 +9,8 @@ export type UserProfile = Pick<
 }
 
 export function getUserProfile(userId: number): Promise<UserProfile> {
-  const accessToken = readSession()?.accessToken
-
-  if (!accessToken) {
-    throw new Error('Authentication is required')
-  }
-
-  return apiRequest<UserProfile>({
+  return authenticatedApiRequest<UserProfile>({
     url: `/users/${userId}`,
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
   })
 }

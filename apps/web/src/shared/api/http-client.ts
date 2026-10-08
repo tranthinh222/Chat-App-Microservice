@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
+import { readSession } from '../lib/auth-storage'
 
 type ApiEnvelope<T> = {
   success: boolean
@@ -65,4 +66,26 @@ export async function apiRequest<T>(config: AxiosRequestConfig): Promise<T> {
 
     throw error
   }
+}
+
+export function authenticatedApiRequest<T>(
+  config: AxiosRequestConfig,
+): Promise<T> {
+  const accessToken = readSession()?.accessToken
+
+  if (!accessToken) {
+    throw new ApiRequestError(
+      'Authentication is required',
+      [],
+      'ACCESS_TOKEN_REQUIRED',
+    )
+  }
+
+  return apiRequest<T>({
+    ...config,
+    headers: {
+      ...config.headers,
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
 }
