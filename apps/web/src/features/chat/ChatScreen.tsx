@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import type { User } from '../../shared/types/user'
 import { AddFriendModal } from '../friendship/AddFriendModal'
+import { FriendshipPanel } from '../friendship/FriendshipPanel'
 import { ProfileModal } from '../profile/ProfileModal'
 import { conversations, initialMessages } from './data'
 
@@ -63,6 +64,8 @@ export function ChatScreen({
   const [message, setMessage] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
   const [addFriendOpen, setAddFriendOpen] = useState(false)
+  const [workspace, setWorkspace] = useState<'messages' | 'contacts'>('messages')
+  const [friendshipRefreshKey, setFriendshipRefreshKey] = useState(0)
   const [conversationFilter, setConversationFilter] = useState<
     'all' | 'unread'
   >('all')
@@ -117,10 +120,18 @@ export function ChatScreen({
         </button>
 
         <div className="zalo-rail-primary">
-          <ToolButton label="Tin nhắn" active>
+          <ToolButton
+            label="Tin nhắn"
+            active={workspace === 'messages'}
+            onClick={() => setWorkspace('messages')}
+          >
             <MessageCircleMore />
           </ToolButton>
-          <ToolButton label="Danh bạ">
+          <ToolButton
+            label="Danh bạ"
+            active={workspace === 'contacts'}
+            onClick={() => setWorkspace('contacts')}
+          >
             <ContactRound />
           </ToolButton>
         </div>
@@ -150,6 +161,8 @@ export function ChatScreen({
         </div>
       </nav>
 
+      {workspace === 'messages' ? (
+        <>
       <aside className="zalo-conversations">
         <div className="zalo-search-row">
           <label className="zalo-search-box">
@@ -319,6 +332,13 @@ export function ChatScreen({
           </button>
         </form>
       </section>
+        </>
+      ) : (
+        <FriendshipPanel
+          refreshKey={friendshipRefreshKey}
+          onAddFriend={() => setAddFriendOpen(true)}
+        />
+      )}
 
       {profileOpen && (
         <ProfileModal user={user} onClose={() => setProfileOpen(false)} />
@@ -327,6 +347,9 @@ export function ChatScreen({
         <AddFriendModal
           currentUserId={user.id}
           onClose={() => setAddFriendOpen(false)}
+          onFriendRequestSent={() =>
+            setFriendshipRefreshKey((current) => current + 1)
+          }
         />
       )}
     </main>

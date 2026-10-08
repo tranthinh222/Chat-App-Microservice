@@ -27,6 +27,7 @@ type RelationshipStatus =
 type AddFriendModalProps = {
   currentUserId: number
   onClose: () => void
+  onFriendRequestSent?: () => void
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -49,6 +50,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 export function AddFriendModal({
   currentUserId,
   onClose,
+  onFriendRequestSent,
 }: AddFriendModalProps) {
   const [phone, setPhone] = useState('')
   const [user, setUser] = useState<PublicUser | null>(null)
@@ -151,6 +153,7 @@ export function AddFriendModal({
     try {
       await sendFriendRequest(user.id)
       setStatus('sent')
+      onFriendRequestSent?.()
     } catch (requestError) {
       if (
         requestError instanceof ApiRequestError &&
