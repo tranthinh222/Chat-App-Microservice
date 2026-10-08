@@ -18,6 +18,8 @@ app.get('/health', (_request, response) => {
 
 const userServiceUrl =
   process.env.USER_SERVICE_URL ?? 'http://localhost:3001'
+const friendshipServiceUrl =
+  process.env.FRIENDSHIP_SERVICE_URL ?? 'http://localhost:3002'
 
 function authPath(path: string): string {
   return '/api/v1/auth' + path
@@ -25,6 +27,10 @@ function authPath(path: string): string {
 
 function userPath(path: string): string {
   return '/api/v1/users' + path
+}
+
+function friendshipPath(path: string): string {
+  return '/api/v1/friendships' + path
 }
 
 app.use(
@@ -42,6 +48,15 @@ app.use(
     target: userServiceUrl,
     changeOrigin: true,
     pathRewrite: userPath,
+  }),
+)
+
+app.use(
+  '/api/friendships',
+  createProxyMiddleware({
+    target: friendshipServiceUrl,
+    changeOrigin: true,
+    pathRewrite: friendshipPath,
   }),
 )
 
