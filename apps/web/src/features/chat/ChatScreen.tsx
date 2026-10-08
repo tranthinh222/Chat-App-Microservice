@@ -26,6 +26,7 @@ import {
   UsersRound,
 } from 'lucide-react'
 import type { User } from '../../shared/types/user'
+import { AddFriendModal } from '../friendship/AddFriendModal'
 import { ProfileModal } from '../profile/ProfileModal'
 import { conversations, initialMessages } from './data'
 
@@ -61,6 +62,7 @@ export function ChatScreen({
   const [messages, setMessages] = useState(initialMessages)
   const [message, setMessage] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
+  const [addFriendOpen, setAddFriendOpen] = useState(false)
   const [conversationFilter, setConversationFilter] = useState<
     'all' | 'unread'
   >('all')
@@ -154,7 +156,7 @@ export function ChatScreen({
             <span>⌕</span>
             <input placeholder="Tìm kiếm" aria-label="Tìm kiếm hội thoại" />
           </label>
-          <ToolButton label="Thêm bạn">
+          <ToolButton label="Thêm bạn" onClick={() => setAddFriendOpen(true)}>
             <UserRoundPlus className="zalo-action-icon" aria-hidden="true" />
           </ToolButton>
           <ToolButton label="Tạo nhóm">
@@ -320,6 +322,12 @@ export function ChatScreen({
 
       {profileOpen && (
         <ProfileModal user={user} onClose={() => setProfileOpen(false)} />
+      )}
+      {addFriendOpen && (
+        <AddFriendModal
+          currentUserId={user.id}
+          onClose={() => setAddFriendOpen(false)}
+        />
       )}
     </main>
   )
