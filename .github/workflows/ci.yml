@@ -44,8 +44,26 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Start integration infrastructure
+        run: docker compose --env-file .env.example up -d --wait notification-postgres kafka
+
+      - name: Apply notification migrations
+        env:
+          DATABASE_URL: postgresql://notification_app:notification_app@localhost:5434/notification_db
+        run: npm run db:deploy -w @chat-app/notification-service
+
+      - name: Integration tests
+        env:
+          INTEGRATION_DATABASE_URL: postgresql://notification_app:notification_app@localhost:5434/notification_db
+          KAFKA_BROKERS: localhost:9092
+        run: npm run test:integration -w @chat-app/notification-service
+
       - name: Lint
         run: npm run lint
 
       - name: Build
         run: npm run build
+
+      - name: Stop integration infrastructure
+        if: always()
+        run: docker compose --env-file .env.example down --volumes
