@@ -83,4 +83,35 @@ describe('parseFriendshipEvent', () => {
       /not valid JSON/,
     )
   })
+
+  it('rejects a message without a value', () => {
+    assert.throws(() => parseFriendshipEvent(null), /has no value/)
+  })
+
+  it('rejects an unsupported event version', () => {
+    const event = {
+      ...metadata,
+      eventVersion: 2,
+      eventType: FRIENDSHIP_EVENT_TYPES.requested,
+      data: { friendshipId: 1, requesterId: 10, receiverId: 20 },
+    }
+
+    assert.throws(
+      () => parseFriendshipEvent(Buffer.from(JSON.stringify(event))),
+      /invalid metadata/,
+    )
+  })
+
+  it('rejects an unsupported event type', () => {
+    const event = {
+      ...metadata,
+      eventType: 'friendship.unknown.v1',
+      data: { friendshipId: 1 },
+    }
+
+    assert.throws(
+      () => parseFriendshipEvent(Buffer.from(JSON.stringify(event))),
+      /Unsupported friendship event type/,
+    )
+  })
 })
