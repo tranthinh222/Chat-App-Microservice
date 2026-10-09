@@ -107,4 +107,38 @@ describe('FriendshipEventConsumer', () => {
     )
     assert.equal(committed, false)
   })
+
+  it('does not process or commit a malformed Kafka message', async () => {
+    let eachMessage: ConsumerRunConfig['eachMessage']
+    let processed = false
+    let committed = false
+    const consumer = {
+      connect: async () => undefined,
+      subscribe: async () => undefined,
+      run: async (config: ConsumerRunConfig) => {
+        eachMessage = config.eachMessage
+      },
+      commitOffsets: async () => {
+        committed = true
+      },
+    } as unknown as Consumer
+    const notificationService = {
+      handleFriendshipEvent: async () => {
+        processed = true
+      },
+    } as unknown as NotificationService
+    const subject = new FriendshipEventConsumer(
+      consumer,
+      notificationService,
+      'friendship.events.test',
+    )
+
+    await subject.start()
+    const payload = messagePayload()
+    payload.message.value = Buffer.from('{invalid')
+
+    await assert.rejects(() => eachMessage!(payload), /not valid JSON/)
+    assert.equal(processed, false)
+    assert.equal(committed, false)
+  })
 })
