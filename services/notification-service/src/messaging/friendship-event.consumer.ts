@@ -10,7 +10,7 @@ export class FriendshipEventConsumer {
   constructor(
     private readonly consumer: Consumer,
     private readonly notificationService: NotificationService,
-    private readonly topic = FRIENDSHIP_EVENTS_TOPIC,
+    private readonly topic: string = FRIENDSHIP_EVENTS_TOPIC,
   ) {}
 
   async start(): Promise<void> {
