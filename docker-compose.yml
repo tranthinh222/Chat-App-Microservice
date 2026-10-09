@@ -53,6 +53,25 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  kafka-init:
+    image: ${KAFKA_DOCKER_IMAGE}
+    command:
+      - /opt/kafka/bin/kafka-topics.sh
+      - --bootstrap-server
+      - kafka:29092
+      - --create
+      - --if-not-exists
+      - --topic
+      - friendship.events.v1
+      - --partitions
+      - "3"
+      - --replication-factor
+      - "1"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: "no"
+
   user-postgres:
     <<: *postgres-defaults
     environment:
@@ -78,6 +97,20 @@ services:
     healthcheck:
       <<: *postgres-healthcheck
       test: ["CMD-SHELL", "pg_isready -U ${FRIENDSHIP_POSTGRES_USERNAME} -d ${FRIENDSHIP_POSTGRES_DATABASE}"]
+
+  notification-postgres:
+    <<: *postgres-defaults
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_POSTGRES_DATABASE}
+      POSTGRES_USER: ${NOTIFICATION_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${NOTIFICATION_POSTGRES_PASSWORD}
+    ports:
+      - "${NOTIFICATION_POSTGRES_HOST_PORT}:5432"
+    volumes:
+      - notification_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      <<: *postgres-healthcheck
+      test: ["CMD-SHELL", "pg_isready -U ${NOTIFICATION_POSTGRES_USERNAME} -d ${NOTIFICATION_POSTGRES_DATABASE}"]
 
   user-service:
     build:
@@ -131,10 +164,43 @@ services:
     depends_on:
       friendship-postgres:
         condition: service_healthy
-      kafka:
-        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:${FRIENDSHIP_SERVICE_PORT}/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        WORKSPACE: "@chat-app/notification-service"
+    environment:
+      PORT: ${NOTIFICATION_SERVICE_PORT}
+      DATABASE_URL: ${NOTIFICATION_DATABASE_INTERNAL_URL}
+      JWT_ACCESS_SECRET: ${SHARED_JWT_ACCESS_SECRET}
+      CORS_ALLOWED_ORIGIN: ${API_GATEWAY_CORS_ALLOWED_ORIGIN}
+      KAFKA_BROKERS: ${NOTIFICATION_KAFKA_BROKERS:-kafka:29092}
+      KAFKA_CLIENT_ID: ${NOTIFICATION_KAFKA_CLIENT_ID:-notification-service}
+      KAFKA_CONSUMER_GROUP_ID: ${NOTIFICATION_KAFKA_CONSUMER_GROUP_ID:-notification-service-v1}
+    command:
+      - sh
+      - -c
+      - npm run db:deploy -w @chat-app/notification-service && npm run start -w @chat-app/notification-service
+    ports:
+      - "127.0.0.1:${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_PORT}"
+    depends_on:
+      notification-postgres:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:${NOTIFICATION_SERVICE_PORT}/health/ready"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -171,14 +237,18 @@ services:
       dockerfile: Dockerfile.web
     environment:
       API_GATEWAY_URL: ${WEB_API_GATEWAY_INTERNAL_URL}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_INTERNAL_URL}
     ports:
       - "${WEB_HOST_PORT}:80"
     depends_on:
       api-gateway:
+        condition: service_healthy
+      notification-service:
         condition: service_healthy
     restart: unless-stopped
 
 volumes:
   postgres_data:
   friendship_postgres_data:
+  notification_postgres_data:
   kafka_data:

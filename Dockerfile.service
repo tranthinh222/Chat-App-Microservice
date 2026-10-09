@@ -7,6 +7,7 @@ COPY apps/web/package.json apps/web/package.json
 COPY services/api-gateway/package.json services/api-gateway/package.json
 COPY services/user-service/package.json services/user-service/package.json
 COPY services/friendship-service/package.json services/friendship-service/package.json
+COPY services/notification-service/package.json services/notification-service/package.json
 COPY packages/events/package.json packages/events/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
 
@@ -20,6 +21,7 @@ COPY . .
 ARG WORKSPACE
 RUN npm run db:generate -w @chat-app/user-service
 RUN npm run db:generate -w @chat-app/friendship-service
+RUN npm run db:generate -w @chat-app/notification-service
 RUN npm run build -w ${WORKSPACE}
 
 FROM node:24-alpine AS runtime
