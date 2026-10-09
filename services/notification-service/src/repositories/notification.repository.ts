@@ -8,5 +8,7 @@ export type CreateNotificationData = {
 }
 
 export interface NotificationRepository {
-  create(data: CreateNotificationData): Promise<Notification>
+  createIfUnprocessed(
+    data: CreateNotificationData,
+  ): Promise<Notification | null>
 }

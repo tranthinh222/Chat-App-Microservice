@@ -12,12 +12,16 @@ export class NotificationService {
     event: FriendshipEvent,
     recipientId: number,
   ): Promise<void> {
-    const notification = await this.repository.create({
+    const notification = await this.repository.createIfUnprocessed({
       eventId: event.eventId,
       recipientId,
       type: event.eventType,
       payload: event,
     })
+
+    if (!notification) {
+      return
+    }
 
     this.realtimeGateway.emitNotification(recipientId, notification)
   }
