@@ -46,3 +46,8 @@ export { Prisma }
  * 
  */
 export type Friendship = Prisma.FriendshipModel
+/**
+ * Model OutboxEvent
+ *
+ */
+export type OutboxEvent = Prisma.OutboxEventModel

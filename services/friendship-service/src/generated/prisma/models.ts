@@ -9,4 +9,5 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Friendship.js'
+export type * from './models/OutboxEvent.js'
 export type * from './commonInputTypes.js'
