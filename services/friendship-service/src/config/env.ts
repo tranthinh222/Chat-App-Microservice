@@ -33,6 +33,22 @@ function getPositiveIntegerEnvironmentVariable(
   return value
 }
 
+function getCommaSeparatedEnvironmentVariable(
+  name: string,
+  fallback: string,
+): string[] {
+  const values = (process.env[name] ?? fallback)
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  if (values.length === 0) {
+    throw new Error(`Environment variable ${name} must contain a value`)
+  }
+
+  return values
+}
+
 export const env = {
   port: getPort(),
   databaseUrl: getRequiredEnvironmentVariable('DATABASE_URL'),
@@ -41,5 +57,27 @@ export const env = {
   userServiceRequestTimeoutMs: getPositiveIntegerEnvironmentVariable(
     'USER_SERVICE_REQUEST_TIMEOUT_MS',
     3000,
+  ),
+  kafkaBrokers: getCommaSeparatedEnvironmentVariable(
+    'KAFKA_BROKERS',
+    'localhost:9092',
+  ),
+  kafkaClientId:
+    process.env.KAFKA_CLIENT_ID?.trim() || 'friendship-service',
+  outboxBatchSize: getPositiveIntegerEnvironmentVariable(
+    'OUTBOX_BATCH_SIZE',
+    50,
+  ),
+  outboxPollIntervalMs: getPositiveIntegerEnvironmentVariable(
+    'OUTBOX_POLL_INTERVAL_MS',
+    1000,
+  ),
+  outboxRetryBaseDelayMs: getPositiveIntegerEnvironmentVariable(
+    'OUTBOX_RETRY_BASE_DELAY_MS',
+    1000,
+  ),
+  outboxRetryMaxDelayMs: getPositiveIntegerEnvironmentVariable(
+    'OUTBOX_RETRY_MAX_DELAY_MS',
+    30_000,
   ),
 }

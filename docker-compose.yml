@@ -118,12 +118,20 @@ services:
       JWT_ACCESS_SECRET: ${SHARED_JWT_ACCESS_SECRET}
       USER_SERVICE_URL: ${USER_SERVICE_INTERNAL_URL}
       USER_SERVICE_REQUEST_TIMEOUT_MS: ${FRIENDSHIP_USER_SERVICE_REQUEST_TIMEOUT_MS}
+      KAFKA_BROKERS: ${FRIENDSHIP_KAFKA_BROKERS:-kafka:29092}
+      KAFKA_CLIENT_ID: ${FRIENDSHIP_KAFKA_CLIENT_ID:-friendship-service}
+      OUTBOX_BATCH_SIZE: ${FRIENDSHIP_OUTBOX_BATCH_SIZE:-50}
+      OUTBOX_POLL_INTERVAL_MS: ${FRIENDSHIP_OUTBOX_POLL_INTERVAL_MS:-1000}
+      OUTBOX_RETRY_BASE_DELAY_MS: ${FRIENDSHIP_OUTBOX_RETRY_BASE_DELAY_MS:-1000}
+      OUTBOX_RETRY_MAX_DELAY_MS: ${FRIENDSHIP_OUTBOX_RETRY_MAX_DELAY_MS:-30000}
     command:
       - sh
       - -c
       - npm run db:deploy -w @chat-app/friendship-service && npm run start -w @chat-app/friendship-service
     depends_on:
       friendship-postgres:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:${FRIENDSHIP_SERVICE_PORT}/health/ready"]
