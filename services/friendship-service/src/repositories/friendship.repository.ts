@@ -18,9 +18,15 @@ export interface FriendshipRepository {
 
   acceptById(id: number): Promise<Friendship | null>
 
-  deleteById(id: number): Promise<boolean>
+  rejectById(request: Friendship, rejectedById: number): Promise<boolean>
 
-  deleteAcceptedByUsers(userLowId: number, userHighId: number): Promise<boolean>
+  cancelById(request: Friendship): Promise<boolean>
+
+  removeByUsers(
+    userLowId: number,
+    userHighId: number,
+    removedById: number,
+  ): Promise<boolean>
 
   findIncomingRequests(userId: number): Promise<Friendship[]>
 

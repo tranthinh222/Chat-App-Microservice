@@ -92,7 +92,7 @@ export class FriendshipService {
     this.ensureReceiver(request, userId)
     this.ensurePending(request)
 
-    const deleted = await this.friendshipRepository.deleteById(requestId)
+    const deleted = await this.friendshipRepository.rejectById(request, userId)
 
     if (!deleted) {
       throw new AppError(
@@ -116,7 +116,7 @@ export class FriendshipService {
 
     this.ensurePending(request)
 
-    const deleted = await this.friendshipRepository.deleteById(requestId)
+    const deleted = await this.friendshipRepository.cancelById(request)
 
     if (!deleted) {
       throw new AppError(
@@ -163,9 +163,10 @@ export class FriendshipService {
       throw new AppError(404, 'FRIENDSHIP_NOT_FOUND', 'Friendship not found')
     }
 
-    const deleted = await this.friendshipRepository.deleteAcceptedByUsers(
+    const deleted = await this.friendshipRepository.removeByUsers(
       Math.min(userId, friendId),
       Math.max(userId, friendId),
+      userId,
     )
 
     if (!deleted) {

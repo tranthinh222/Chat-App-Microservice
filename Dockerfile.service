@@ -7,6 +7,7 @@ COPY apps/web/package.json apps/web/package.json
 COPY services/api-gateway/package.json services/api-gateway/package.json
 COPY services/user-service/package.json services/user-service/package.json
 COPY services/friendship-service/package.json services/friendship-service/package.json
+COPY packages/events/package.json packages/events/package.json
 COPY packages/shared-types/package.json packages/shared-types/package.json
 
 RUN npm config set fetch-retries 5 \

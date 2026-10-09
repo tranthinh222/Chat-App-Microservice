@@ -28,3 +28,17 @@ model Friendship {
   @@index([requestedById, status])
   @@map("friendships")
 }
+
+model OutboxEvent {
+  id            String    @id @default(uuid())
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id")
+  eventType     String    @map("event_type")
+  payload       Json
+  occurredAt    DateTime  @default(now()) @map("occurred_at")
+  publishedAt   DateTime? @map("published_at")
+  attempts      Int       @default(0)
+
+  @@index([publishedAt, occurredAt])
+  @@map("outbox_events")
+}
